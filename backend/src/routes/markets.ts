@@ -108,6 +108,12 @@ marketsRouter.get('/', validate(listMarketsQuerySchema, 'query'), async (req, re
 
     const where: any = {};
     where.active = active;
+    where.closed = false;
+    // 排除已过期事件：endDate 为空（无截止日）或 endDate 在未来
+    where.OR = [
+      { endDate: null },
+      { endDate: { gte: new Date() } },
+    ];
     if (tag) where.tagSlugs = { has: tag };
     if (search) where.title = { contains: search, mode: 'insensitive' };
 
@@ -119,7 +125,7 @@ marketsRouter.get('/', validate(listMarketsQuerySchema, 'query'), async (req, re
       skip: offset,
       include: {
         markets: {
-          where: { active: true },
+          where: { active: true, closed: false },
           orderBy: [{ volume: 'desc' }],
         },
       },
@@ -144,7 +150,7 @@ marketsRouter.get('/', validate(listMarketsQuerySchema, 'query'), async (req, re
       tags: Array.isArray(e.tags) ? (e.tags as any) : [],
       markets: e.markets.map((m) => ({
         marketId: m.id,
-        conditionId: m.conditionId,
+        conditionId: m.conditionId ?? '',
         question: m.question,
         outcomes: m.outcomes,
         outcomePrices: m.outcomePrices,
@@ -181,49 +187,30 @@ marketsRouter.get('/:eventId', async (req, res, next) => {
 
     if (!event) throw new AppError(404, 'EVENT_NOT_FOUND', `Event '${eventId}' not found`);
 
-    const markets = [];
-    for (const m of event.markets) {
-      const yesTokenId = m.clobTokenIds?.[0];
-      const noTokenId = m.clobTokenIds?.[1];
+    const emptyOrderBook: OrderBookData = {
+      yes: { bids: [], asks: [], bestBid: '0', bestAsk: '0', spread: '0', midpoint: '0' },
+      no: { bids: [], asks: [], bestBid: '0', bestAsk: '0', spread: '0', midpoint: '0' },
+      hash: '',
+      timestamp: new Date().toISOString(),
+    };
 
-      let polymarketOrderBook: OrderBookData = {
-        yes: { bids: [], asks: [], bestBid: '0', bestAsk: '0', spread: '0', midpoint: '0' },
-        no: { bids: [], asks: [], bestBid: '0', bestAsk: '0', spread: '0', midpoint: '0' },
-        hash: '',
-        timestamp: new Date().toISOString(),
-      };
-
-      if (yesTokenId && noTokenId) {
-        orderBookCache.markHot(yesTokenId);
-        orderBookCache.markHot(noTokenId);
-        const yesBook = await orderBookCache.getOrderBook(yesTokenId) as ClobOrderBook;
-        const noBook = await orderBookCache.getOrderBook(noTokenId) as ClobOrderBook;
-        polymarketOrderBook = {
-          yes: buildOrderBookSide(yesBook, 20),
-          no: buildOrderBookSide(noBook, 20),
-          hash: yesBook.hash || noBook.hash,
-          timestamp: new Date().toISOString(),
-        };
-      }
-
-      markets.push({
-        marketId: m.id,
-        conditionId: m.conditionId,
-        question: m.question,
-        outcomes: m.outcomes,
-        outcomePrices: m.outcomePrices,
-        lastTradePrice: m.lastTradePrice ?? m.outcomePrices?.[0] ?? '0',
-        bestBid: m.bestBid ?? '0',
-        bestAsk: m.bestAsk ?? '0',
-        spread: m.spread ?? 0,
-        volume: toNumberString(m.volume, 2),
-        onchainMarketId: m.onchainMarketId ?? '',
-        clobTokenIds: m.clobTokenIds,
-        resolutionStatus: (m.resolutionStatus as 0 | 1 | 2) ?? 0,
-        acceptingOrders: m.acceptingOrders,
-        polymarketOrderBook,
-      });
-    }
+    const markets = event.markets.map((m) => ({
+      marketId: m.id,
+      conditionId: m.conditionId ?? '',
+      question: m.question,
+      outcomes: m.outcomes,
+      outcomePrices: m.outcomePrices,
+      lastTradePrice: m.lastTradePrice ?? m.outcomePrices?.[0] ?? '0',
+      bestBid: m.bestBid ?? '0',
+      bestAsk: m.bestAsk ?? '0',
+      spread: m.spread ?? 0,
+      volume: toNumberString(m.volume, 2),
+      onchainMarketId: m.onchainMarketId ?? '',
+      clobTokenIds: m.clobTokenIds,
+      resolutionStatus: (m.resolutionStatus as 0 | 1 | 2) ?? 0,
+      acceptingOrders: m.acceptingOrders,
+      polymarketOrderBook: emptyOrderBook,
+    }));
 
     const data: EventDetail = {
       eventId: event.id,
@@ -270,15 +257,20 @@ marketsRouter.get('/:eventId/orderbook/:marketId', validate(orderBookQuerySchema
     orderBookCache.markHot(yesTokenId);
     orderBookCache.markHot(noTokenId);
 
-    const yesBook = await orderBookCache.getOrderBook(yesTokenId) as ClobOrderBook;
-    const noBook = await orderBookCache.getOrderBook(noTokenId) as ClobOrderBook;
-
-    const data: OrderBookData = {
-      yes: buildOrderBookSide(yesBook, depth),
-      no: buildOrderBookSide(noBook, depth),
-      hash: yesBook.hash || noBook.hash,
-      timestamp: new Date().toISOString(),
-    };
+    let data: OrderBookData;
+    try {
+      const yesBook = await orderBookCache.getOrderBook(yesTokenId) as ClobOrderBook;
+      const noBook = await orderBookCache.getOrderBook(noTokenId) as ClobOrderBook;
+      data = {
+        yes: buildOrderBookSide(yesBook, depth),
+        no: buildOrderBookSide(noBook, depth),
+        hash: yesBook.hash || noBook.hash,
+        timestamp: new Date().toISOString(),
+      };
+    } catch {
+      const empty = { bids: [], asks: [], bestBid: '0', bestAsk: '0', spread: '0', midpoint: '0' };
+      data = { yes: empty, no: empty, hash: '', timestamp: new Date().toISOString() };
+    }
 
     const response: ApiResponse<OrderBookData> = { success: true, data };
     res.json(response);

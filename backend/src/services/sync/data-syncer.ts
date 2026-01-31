@@ -66,6 +66,7 @@ export class DataSyncer {
         limit,
         offset,
         active: true,
+        closed: false,
         order: 'volume',
         ascending: false,
       });
@@ -83,10 +84,16 @@ export class DataSyncer {
 
   private async upsertEventsBatch(events: GammaEvent[]): Promise<void> {
     const syncedAt = new Date();
+    const now = new Date();
 
     for (const event of events) {
       const tagSlugs = (event.tags || []).map((t) => t.slug);
       const tags = (event.tags || []).map((t) => ({ slug: t.slug, label: t.label }));
+
+      // 如果 endDate 已过期，强制标记为非活跃
+      const endDate = event.endDate ? new Date(event.endDate) : null;
+      const isExpired = endDate !== null && endDate < now;
+      const isActive = isExpired ? false : !!event.active;
 
       await prisma.event.upsert({
         where: { id: event.id },
@@ -99,9 +106,9 @@ export class DataSyncer {
           imageUrl: event.image ?? null,
           iconUrl: event.icon ?? null,
           startDate: event.startDate ? new Date(event.startDate) : null,
-          endDate: event.endDate ? new Date(event.endDate) : null,
-          active: !!event.active,
-          closed: !!event.closed,
+          endDate,
+          active: isActive,
+          closed: isExpired ? true : !!event.closed,
           featured: !!event.featured,
           volume: Number(event.volume ?? 0),
           volume24h: Number((event as any).volume24hr ?? (event as any).volume24h ?? 0),
@@ -120,9 +127,9 @@ export class DataSyncer {
           imageUrl: event.image ?? null,
           iconUrl: event.icon ?? null,
           startDate: event.startDate ? new Date(event.startDate) : null,
-          endDate: event.endDate ? new Date(event.endDate) : null,
-          active: !!event.active,
-          closed: !!event.closed,
+          endDate,
+          active: isActive,
+          closed: isExpired ? true : !!event.closed,
           featured: !!event.featured,
           volume: Number(event.volume ?? 0),
           volume24h: Number((event as any).volume24hr ?? (event as any).volume24h ?? 0),
@@ -152,6 +159,11 @@ export class DataSyncer {
 
     const spread = market.spread ? Number(market.spread) : null;
 
+    const mktEndDate = market.endDate ? new Date(market.endDate) : null;
+    const mktExpired = mktEndDate !== null && mktEndDate < new Date();
+    const mktActive = mktExpired ? false : !!market.active;
+    const mktClosed = mktExpired ? true : !!market.closed;
+
     await prisma.market.upsert({
       where: { id: market.id },
       create: {
@@ -166,10 +178,10 @@ export class DataSyncer {
         outcomePrices,
         clobTokenIds,
         startDate: null,
-        endDate: market.endDate ? new Date(market.endDate) : null,
-        active: !!market.active,
-        closed: !!market.closed,
-        acceptingOrders: !!market.acceptingOrders,
+        endDate: mktEndDate,
+        active: mktActive,
+        closed: mktClosed,
+        acceptingOrders: mktExpired ? false : !!market.acceptingOrders,
         volume: this.toNumber(market.volume),
         volume24h: this.toNumber(market.volume24hr),
         liquidity: this.toNumber(market.liquidity),
@@ -191,10 +203,10 @@ export class DataSyncer {
         outcomes,
         outcomePrices,
         clobTokenIds,
-        endDate: market.endDate ? new Date(market.endDate) : null,
-        active: !!market.active,
-        closed: !!market.closed,
-        acceptingOrders: !!market.acceptingOrders,
+        endDate: mktEndDate,
+        active: mktActive,
+        closed: mktClosed,
+        acceptingOrders: mktExpired ? false : !!market.acceptingOrders,
         volume: this.toNumber(market.volume),
         volume24h: this.toNumber(market.volume24hr),
         liquidity: this.toNumber(market.liquidity),

@@ -93,8 +93,11 @@ export class ProxyOrderService {
       const tokenAmount = (usdcAmountRaw * 10000n) / BigInt(priceBps);
 
       // 4. 链上 marketId
+      if (!market.conditionId && !market.onchainMarketId) {
+        throw new Error('Market has no conditionId or onchainMarketId');
+      }
       const onchainMarketId =
-        market.onchainMarketId || polymarketToOnchainMarketId(market.conditionId);
+        market.onchainMarketId || polymarketToOnchainMarketId(market.conditionId!);
 
       // 5. 调用合约 openPosition
       const outcomeNum = outcome === 'YES' ? OUTCOME_YES : OUTCOME_NO;
