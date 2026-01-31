@@ -3,11 +3,11 @@ import TradingHubAbi from './abis/TradingHub.json';
 
 export const CONTRACTS = {
   USDC: {
-    address: '0x0F0dC21FcC101173BD742F9CfEa8d6e68Ada4031' as `0x${string}`,
+    address: '0x820b29e2AeEc48a351cd2c9dE9111924a7bA6203' as `0x${string}`,
     abi: USDCAbi,
   },
   TradingHub: {
-    address: '0x8CaEe372b8cec0F5850eCbA4276b5e631a51192E' as `0x${string}`,
+    address: '0xBd20E09Bc18EEba5C72434BED27a0CBe8661ac57' as `0x${string}`,
     abi: TradingHubAbi,
   },
 } as const;
