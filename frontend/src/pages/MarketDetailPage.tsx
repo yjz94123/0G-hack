@@ -84,6 +84,9 @@ export function MarketDetailPage() {
     return event.markets.find((m) => m.marketId === selectedMarketId);
   }, [event, selectedMarketId]);
 
+  const { data: orderBookData, isLoading: obLoading } = useOrderBook(event?.eventId, market?.marketId);
+  const { data: priceData, isLoading: priceLoading } = usePriceHistory(event?.eventId, market?.marketId);
+
   if (isLoading) return <Loading text={t('common.loading')} />;
   if (error) return <ErrorMessage message={error.message || t('common.error')} />;
   if (!event) return <ErrorMessage message={t('marketDetail.marketUnavailable')} />;

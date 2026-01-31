@@ -23,7 +23,6 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
   const [amount, setAmount] = useState('');
   const [tradeError, setTradeError] = useState<string | null>(null);
   const [tradeSuccess, setTradeSuccess] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { balance, balanceRaw, refetch: refetchBalance } = useUSDCBalance(address);
   const {
@@ -44,6 +43,8 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
     isSuccess: approveSuccess,
     error: approveError,
   } = useApproveUSDC();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const currentPrice = side === 'yes' ? yesPrice : noPrice;
   const shares = amount ? parseFloat(amount) / currentPrice : 0;
@@ -84,7 +85,6 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
     setTradeError(null);
     setTradeSuccess(null);
     setIsSubmitting(true);
-
     try {
       const result = await placeBuyOrder({
         userAddress: address,
