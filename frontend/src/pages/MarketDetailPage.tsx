@@ -118,17 +118,10 @@ export function MarketDetailPage() {
         <div className="flex-1">
           <div className="flex items-start gap-4">
              {event.imageUrl && (
-<<<<<<< HEAD
-                <img
-                  src={event.imageUrl}
-                  alt={event.title}
-                  className="w-16 h-16 rounded-lg object-cover bg-dark-800"
-=======
                 <img 
                   src={event.imageUrl} 
                   alt={event.title} 
                   className="w-16 h-16 rounded-lg object-cover bg-elevated"
->>>>>>> leo
                 />
              )}
              <div>
@@ -201,7 +194,11 @@ export function MarketDetailPage() {
                         : 'bg-surface border-border hover:bg-elevated/40 hover:border-border-strong'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleMarketClick(m.marketId)}
+                      className="w-full flex items-start justify-between gap-3 px-3 py-2 text-left"
+                    >
                       <div className="min-w-0">
                         <div className="text-sm text-fg-primary leading-snug max-h-[2.6em] overflow-hidden">
                           {m.question}
@@ -210,11 +207,14 @@ export function MarketDetailPage() {
                           {t('marketDetail.volume')}: {formatMoney(Number(m.volume || 0))}
                         </div>
                       </div>
+                      <span className="mt-0.5 text-fg-muted">
+                        {selected ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      </span>
                     </button>
 
                     {/* Expanded panel: order book + price chart */}
                     {selected && event.eventId && (
-                      <div className="px-3 pb-3 border-t border-dark-700/50">
+                      <div className="px-3 pb-3 border-t border-border/50">
                         <MarketExpandedPanel
                           eventId={event.eventId}
                           marketId={m.marketId}
