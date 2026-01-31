@@ -54,9 +54,9 @@ export function AnalysisPanel({ marketId }: AnalysisPanelProps) {
                 </span>
                 <span className="text-dark-500">{analysis.createdAt}</span>
               </div>
-              {analysis.result && (
+              {analysis.reasoning && (
                 <div className="text-sm text-dark-300">
-                  <p>{(analysis.result as { summary?: string }).summary}</p>
+                  <p>{analysis.reasoning}</p>
                 </div>
               )}
             </div>

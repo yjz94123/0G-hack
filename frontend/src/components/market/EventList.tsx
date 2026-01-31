@@ -19,7 +19,7 @@ export function EventList({ events, isLoading, error, onRetry }: EventListProps)
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {events.map((event) => (
-        <EventCard key={event.id} event={event} />
+        <EventCard key={event.eventId} event={event} />
       ))}
     </div>
   );

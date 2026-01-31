@@ -1,0 +1,42 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "search": "Search for a market",
+    "connectWallet": "Connect Wallet",
+    "poweredBy": "Powered by 0G Newton Testnet"
+  },
+  "nav": {
+    "explorer": "Explorer",
+    "smartMoney": "Smart Money",
+    "reefboard": "Reefboard",
+    "referral": "Referral",
+    "portfolio": "Portfolio",
+    "docs": "Docs",
+    "twitter": "Twitter",
+    "support": "Support",
+    "soon": "Soon",
+    "testnetLive": "Testnet Live"
+  },
+  "marketList": {
+    "trending": "Trending",
+    "newEvents": "New Events",
+    "endingSoon": "Ending Soon",
+    "expiresSoon": "Expires soon",
+    "vol24h": "Vol 24h",
+    "totalVol": "Total Vol",
+    "liquidity": "Liquidity",
+    "event": "Event",
+    "noMarkets": "No markets found",
+    "noMarketsDesc": "Try adjusting your filters or search query"
+  },
+  "marketDetail": {
+    "expires": "Expires",
+    "rules": "Rules",
+    "volume": "Volume",
+    "liquidity": "Liquidity",
+    "priceHistory": "Price History",
+    "orderBook": "Order Book",
+    "marketUnavailable": "Market data unavailable"
+  }
+}

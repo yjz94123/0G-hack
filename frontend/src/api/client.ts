@@ -1,36 +1,28 @@
-import axios from 'axios';
-import type { ApiResponse } from '@og-predict/shared';
+import axios, { type AxiosResponse } from 'axios';
 
-const apiClient = axios.create({
-  baseURL: '/api/v1',
-  timeout: 15_000,
+export const baseURL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+
+const client = axios.create({
+  baseURL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// 响应拦截器: 统一提取 data
-apiClient.interceptors.response.use(
+client.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message =
-      error.response?.data?.error?.message ||
-      error.message ||
-      'Network error';
+    // Handle global errors here
+    const message = error.response?.data?.error?.message || error.message || 'Something went wrong';
     return Promise.reject(new Error(message));
   }
 );
 
-/** 通用 GET 请求 */
-export async function apiGet<T>(url: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {
-  const { data } = await apiClient.get<ApiResponse<T>>(url, { params });
-  return data;
-}
+export const apiGet = <T>(url: string, params?: any): Promise<AxiosResponse<T>> =>
+  client.get(url, { params });
 
-/** 通用 POST 请求 */
-export async function apiPost<T>(url: string, body?: unknown): Promise<ApiResponse<T>> {
-  const { data } = await apiClient.post<ApiResponse<T>>(url, body);
-  return data;
-}
+export const apiPost = <T>(url: string, data?: any): Promise<AxiosResponse<T>> =>
+  client.post(url, data);
 
-export { apiClient };
+export default client;
