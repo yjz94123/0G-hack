@@ -20,7 +20,7 @@ app.use('/api/v1/markets', marketsRouter);
 app.use('/api/v1/analysis', analysisRouter);
 app.use('/api/v1/trades', tradesRouter);
 app.use('/api/v1/snapshots', snapshotsRouter);
-app.use('/api/v1', healthRouter);
+app.use('/api/v1/health', healthRouter);
 
 // Error handling
 app.use(errorHandler);

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 build/
+.npm-cache/
 .env
 .env.local
 .env.*.local
@@ -8,3 +9,8 @@ build/
 .DS_Store
 coverage/
 .turbo/
+
+# Foundry
+lib/
+contracts/out/
+contracts/cache/

@@ -6,19 +6,20 @@ export function useTriggerAnalysis() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (marketId: string) => triggerAnalysis(marketId),
-    onSuccess: (_data, marketId) => {
-      queryClient.invalidateQueries({ queryKey: ['analyses', marketId] });
+    mutationFn: (params: { eventId: string; marketId: string; question?: string }) =>
+      triggerAnalysis(params.eventId, params.marketId, { question: params.question }),
+    onSuccess: (_data, params) => {
+      queryClient.invalidateQueries({ queryKey: ['analyses', params.eventId, params.marketId] });
     },
   });
 }
 
 /** 获取市场分析列表 */
-export function useAnalyses(marketId: string | undefined) {
+export function useAnalyses(eventId: string | undefined, marketId: string | undefined) {
   return useQuery({
-    queryKey: ['analyses', marketId],
-    queryFn: () => fetchAnalyses(marketId!),
-    enabled: !!marketId,
+    queryKey: ['analyses', eventId, marketId],
+    queryFn: () => fetchAnalyses(eventId!, { marketId: marketId! }),
+    enabled: !!eventId && !!marketId,
   });
 }
 

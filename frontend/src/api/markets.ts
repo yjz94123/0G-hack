@@ -12,37 +12,54 @@ export function fetchEvents(params?: {
   limit?: number;
   offset?: number;
   tag?: string;
-  sortBy?: string;
+  sortBy?: 'volume' | 'volume24h' | 'liquidity' | 'endDate' | 'createdAt';
+  order?: 'asc' | 'desc';
+  search?: string;
 }) {
-  return apiGet<{ events: EventSummary[]; pagination: unknown }>('/markets/events', params);
+  return apiGet<EventSummary[]>('/markets', params);
 }
 
 /** 获取事件详情（含子市场） */
 export function fetchEventDetail(eventId: string) {
-  return apiGet<EventDetail>(`/markets/events/${eventId}`);
+  return apiGet<EventDetail>(`/markets/${eventId}`);
 }
 
 /** 获取订单簿 */
-export function fetchOrderBook(tokenId: string) {
-  return apiGet<OrderBookData>(`/markets/orderbook/${tokenId}`);
+export function fetchOrderBook(
+  eventId: string,
+  marketId: string,
+  params?: { depth?: number }
+) {
+  return apiGet<OrderBookData>(`/markets/${eventId}/orderbook/${marketId}`, params);
 }
 
 /** 获取价格历史 */
-export function fetchPriceHistory(conditionId: string, params?: {
-  interval?: string;
-  limit?: number;
-}) {
-  return apiGet<PriceHistory>(`/markets/price-history/${conditionId}`, params);
+export function fetchPriceHistory(
+  eventId: string,
+  marketId: string,
+  params?: { interval?: '1h' | '1d' | '1w' | 'max'; outcome?: 'yes' | 'no' }
+) {
+  return apiGet<PriceHistory>(`/markets/${eventId}/price-history/${marketId}`, params);
 }
 
 /** 触发 AI 分析 */
-export function triggerAnalysis(marketId: string) {
-  return apiPost<AnalysisTask>(`/markets/${marketId}/analyze`);
+export function triggerAnalysis(
+  eventId: string,
+  marketId: string,
+  body?: { question?: string }
+) {
+  return apiPost<AnalysisTask>(`/markets/${eventId}/analyze`, {
+    marketId,
+    ...(body ?? {}),
+  });
 }
 
 /** 获取市场分析列表 */
-export function fetchAnalyses(marketId: string) {
-  return apiGet<{ analyses: AnalysisTask[] }>(`/markets/${marketId}/analyses`);
+export function fetchAnalyses(
+  eventId: string,
+  params?: { marketId?: string; status?: 'completed' | 'failed'; limit?: number; offset?: number }
+) {
+  return apiGet<AnalysisTask[]>(`/markets/${eventId}/analyses`, params);
 }
 
 /** 获取分析详情 */

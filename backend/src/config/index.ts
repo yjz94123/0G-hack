@@ -44,4 +44,15 @@ export const config = {
     oracleCheckIntervalMs: parseInt(process.env.ORACLE_CHECK_INTERVAL_MS || '300000', 10),
     snapshotIntervalMs: parseInt(process.env.SNAPSHOT_INTERVAL_MS || '1800000', 10),
   },
+
+  marketMaker: {
+    enabled: process.env.MARKET_MAKER_ENABLED === 'true',
+    privateKey: process.env.MARKET_MAKER_PRIVATE_KEY || '',
+    intervalMs: parseInt(process.env.MARKET_MAKER_INTERVAL_MS || '60000', 10),
+    spreadBps: parseInt(process.env.MARKET_MAKER_SPREAD_BPS || '300', 10),
+    orderAmountUsdc: parseInt(process.env.MARKET_MAKER_ORDER_AMOUNT || '50', 10),
+    maxMarkets: parseInt(process.env.MARKET_MAKER_MAX_MARKETS || '5', 10),
+    minBalanceUsdc: parseInt(process.env.MARKET_MAKER_MIN_BALANCE || '100', 10),
+    mintAmountUsdc: parseInt(process.env.MARKET_MAKER_MINT_AMOUNT || '5000', 10),
+  },
 } as const;

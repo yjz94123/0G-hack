@@ -9,7 +9,7 @@ export const AppRouter = () => {
     <Routes>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<MarketList />} />
-        <Route path="market/:marketId" element={<MarketDetailPage />} />
+        <Route path="market/:eventId" element={<MarketDetailPage />} />
         <Route path="portfolio" element={<Portfolio />} />
       </Route>
     </Routes>

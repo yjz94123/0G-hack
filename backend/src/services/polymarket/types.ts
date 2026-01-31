@@ -5,13 +5,18 @@ export interface GammaEvent {
   slug: string;
   title: string;
   description: string;
+  resolutionSource?: string | null;
   startDate: string;
   endDate: string;
+  creationDate?: string;
   active: boolean;
   closed: boolean;
   archived: boolean;
+  featured?: boolean;
   liquidity: number;
   volume: number;
+  volume24hr?: number;
+  openInterest?: number;
   markets: GammaMarket[];
   tags: { id: string; label: string; slug: string }[];
   image: string;
@@ -24,16 +29,23 @@ export interface GammaMarket {
   id: string;
   question: string;
   conditionId: string;
+  questionId?: string;
   slug: string;
   endDate: string;
   liquidity: string;
   volume: string;
+  volume24hr?: string;
   active: boolean;
   closed: boolean;
   outcomes: string; // JSON string: '["Yes","No"]'
   outcomePrices: string; // JSON string: '[0.65, 0.35]'
   clobTokenIds: string; // JSON string
   acceptingOrders: boolean;
+  lastTradePrice?: string;
+  bestBid?: string;
+  bestAsk?: string;
+  spread?: string;
+  description?: string;
 }
 
 /** CLOB API 返回的订单簿结构 */

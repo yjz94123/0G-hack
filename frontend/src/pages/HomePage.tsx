@@ -11,7 +11,7 @@ export function HomePage() {
     tag: selectedTag === 'All' ? undefined : selectedTag.toLowerCase(),
   });
 
-  const events = data?.data?.events || [];
+  const events = data?.data || [];
 
   return (
     <div>

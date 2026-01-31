@@ -1,24 +1,68 @@
-import React, { useState } from 'react';
-import { useMarketStore } from '../../stores/market-store';
+import React, { useEffect, useState } from 'react';
 import { MarketDataRow } from '../../components/market/MarketDataRow';
-import { Loading } from '../../components/common';
-import { Search, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Loading, ErrorMessage } from '../../components/common';
+import { Search, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { clsx } from 'clsx';
 
-// Mock data for initial render if store is empty
-// In a real app, this would be fetched via React Query
 import type { EventSummary } from '@og-predict/shared';
+import { useEvents } from '../../hooks';
 
 import { useTranslation } from 'react-i18next';
 
 const MarketList: React.FC = () => {
   const { t } = useTranslation();
-  const { events, isLoading } = useMarketStore();
-  const [filter, setFilter] = useState<'trending' | 'new' | 'ending'>('trending');
+  const [sortBy, setSortBy] = useState<'volume' | 'volume24h' | 'liquidity' | 'endDate' | 'createdAt'>('volume24h');
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   
   // Categories based on the screenshot
   const categories = ['All', 'Politics', 'Crypto', 'Finance', 'Geopolitics', 'Tech', 'World'];
   const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery.trim());
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  const applyPreset = (preset: 'trending' | 'new' | 'ending') => {
+    if (preset === 'trending') {
+      setSortBy('volume24h');
+      setOrder('desc');
+      return;
+    }
+    if (preset === 'new') {
+      setSortBy('createdAt');
+      setOrder('desc');
+      return;
+    }
+    setSortBy('endDate');
+    setOrder('asc');
+  };
+
+  const toggleSort = (nextSortBy: typeof sortBy) => {
+    if (sortBy === nextSortBy) {
+      setOrder(order === 'asc' ? 'desc' : 'asc');
+      return;
+    }
+    setSortBy(nextSortBy);
+    setOrder(nextSortBy === 'endDate' ? 'asc' : 'desc');
+  };
+
+  const { data, isLoading, error, refetch } = useEvents({
+    limit: 50,
+    offset: 0,
+    tag: activeCategory === 'All' ? undefined : activeCategory.toLowerCase(),
+    sortBy,
+    order,
+    search: debouncedSearchQuery ? debouncedSearchQuery : undefined,
+  });
+
+  const events: EventSummary[] = data?.data || [];
+  const SortIcon = order === 'asc' ? ArrowUp : ArrowDown;
 
   return (
     <div className="space-y-6">
@@ -27,29 +71,29 @@ const MarketList: React.FC = () => {
         {/* Left: View Filters */}
         <div className="flex items-center gap-6 w-full md:w-auto overflow-x-auto no-scrollbar">
           <button 
-            onClick={() => setFilter('trending')}
+            onClick={() => applyPreset('trending')}
             className={clsx(
               "flex items-center gap-2 text-sm font-medium whitespace-nowrap pb-2 md:pb-0 border-b-2 md:border-b-0 transition-colors",
-               filter === 'trending' ? "text-white border-white" : "text-dark-400 border-transparent hover:text-white"
+               sortBy === 'volume24h' ? "text-white border-white" : "text-dark-400 border-transparent hover:text-white"
             )}
           >
             <ArrowUpDown className="w-4 h-4" />
             {t('marketList.trending')}
           </button>
           <button 
-             onClick={() => setFilter('new')}
+             onClick={() => applyPreset('new')}
              className={clsx(
               "flex items-center gap-2 text-sm font-medium whitespace-nowrap pb-2 md:pb-0 border-b-2 md:border-b-0 transition-colors",
-               filter === 'new' ? "text-white border-white" : "text-dark-400 border-transparent hover:text-white"
+               sortBy === 'createdAt' ? "text-white border-white" : "text-dark-400 border-transparent hover:text-white"
             )}
           >
             {t('marketList.newEvents')}
           </button>
           <button 
-             onClick={() => setFilter('ending')}
+             onClick={() => applyPreset('ending')}
              className={clsx(
               "flex items-center gap-2 text-sm font-medium whitespace-nowrap pb-2 md:pb-0 border-b-2 md:border-b-0 transition-colors",
-               filter === 'ending' ? "text-white border-white" : "text-dark-400 border-transparent hover:text-white"
+               sortBy === 'endDate' ? "text-white border-white" : "text-dark-400 border-transparent hover:text-white"
             )}
           >
             {t('marketList.endingSoon')}
@@ -80,6 +124,8 @@ const MarketList: React.FC = () => {
            <input 
               type="text"
               placeholder={t('common.search')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full md:w-64 bg-dark-900 border border-dark-800 rounded-lg py-2 pl-9 pr-4 text-sm text-white placeholder:text-dark-500 focus:outline-none focus:border-dark-600 transition-colors"
            />
         </div>
@@ -90,13 +136,48 @@ const MarketList: React.FC = () => {
         {/* Table Header (Hidden on Mobile) */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-4 pb-2 text-xs font-medium text-dark-500 uppercase tracking-wider">
            <div className="col-span-6">{t('marketList.event')}</div>
-           <div className="col-span-2 text-right">{t('marketList.vol24h')}</div>
-           <div className="col-span-2 text-right">{t('marketList.totalVol')}</div>
-           <div className="col-span-2 text-right">{t('marketList.liquidity')}</div>
+           <button
+             type="button"
+             onClick={() => toggleSort('volume24h')}
+             className="col-span-2 flex items-center justify-end gap-1 hover:text-dark-300 transition-colors"
+           >
+             <span>{t('marketList.vol24h')}</span>
+             {sortBy === 'volume24h' ? (
+               <SortIcon className="w-3 h-3 text-dark-400" />
+             ) : (
+               <ArrowUpDown className="w-3 h-3 text-dark-700" />
+             )}
+           </button>
+           <button
+             type="button"
+             onClick={() => toggleSort('volume')}
+             className="col-span-2 flex items-center justify-end gap-1 hover:text-dark-300 transition-colors"
+           >
+             <span>{t('marketList.totalVol')}</span>
+             {sortBy === 'volume' ? (
+               <SortIcon className="w-3 h-3 text-dark-400" />
+             ) : (
+               <ArrowUpDown className="w-3 h-3 text-dark-700" />
+             )}
+           </button>
+           <button
+             type="button"
+             onClick={() => toggleSort('liquidity')}
+             className="col-span-2 flex items-center justify-end gap-1 hover:text-dark-300 transition-colors"
+           >
+             <span>{t('marketList.liquidity')}</span>
+             {sortBy === 'liquidity' ? (
+               <SortIcon className="w-3 h-3 text-dark-400" />
+             ) : (
+               <ArrowUpDown className="w-3 h-3 text-dark-700" />
+             )}
+           </button>
         </div>
 
         {isLoading ? (
            <Loading size="lg" text={t('common.loading')} />
+        ) : error ? (
+           <ErrorMessage message={error.message || t('common.error')} onRetry={() => refetch()} />
         ) : events.length === 0 ? (
            // Placeholder for when no events are loaded yet
            <div className="text-center py-20">

@@ -1,8 +1,9 @@
-import axios, { type AxiosResponse } from 'axios';
+import axios from 'axios';
+import type { ApiResponse } from '@og-predict/shared';
 
 export const baseURL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
-const client = axios.create({
+const apiClient = axios.create({
   baseURL,
   timeout: 10000,
   headers: {
@@ -10,19 +11,29 @@ const client = axios.create({
   },
 });
 
-client.interceptors.response.use(
+apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     // Handle global errors here
-    const message = error.response?.data?.error?.message || error.message || 'Something went wrong';
+    const message =
+      error.response?.data?.error?.message ||
+      error.message ||
+      'Something went wrong';
     return Promise.reject(new Error(message));
   }
 );
 
-export const apiGet = <T>(url: string, params?: any): Promise<AxiosResponse<T>> =>
-  client.get(url, { params });
+export async function apiGet<T>(
+  url: string,
+  params?: Record<string, unknown>
+): Promise<ApiResponse<T>> {
+  const { data } = await apiClient.get<ApiResponse<T>>(url, { params });
+  return data;
+}
 
-export const apiPost = <T>(url: string, data?: any): Promise<AxiosResponse<T>> =>
-  client.post(url, data);
+export async function apiPost<T>(url: string, body?: unknown): Promise<ApiResponse<T>> {
+  const { data } = await apiClient.post<ApiResponse<T>>(url, body);
+  return data;
+}
 
-export default client;
+export { apiClient };

@@ -7,61 +7,89 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==================== 事件表 ====================
+// ==================== 事件表 (Polymarket Event) ====================
 model Event {
-  id          String   @id                   // Polymarket event ID
-  slug        String   @unique
-  title       String
-  description String?
-  startDate   DateTime?
-  endDate     DateTime?
-  active      Boolean  @default(true)
-  closed      Boolean  @default(false)
-  liquidity   Float    @default(0)
-  volume      Float    @default(0)
-  image       String?
-  icon        String?
-  tags        String[] // Tag labels
+  id               String    @id                 // Polymarket event ID
+  slug             String    @unique
+  title            String
+  description      String?
+  resolutionSource String?
+  imageUrl         String?
+  iconUrl          String?
+  startDate        DateTime?
+  endDate          DateTime?
+  active           Boolean   @default(true)
+  closed           Boolean   @default(false)
+  featured         Boolean   @default(false)
+  volume           Float     @default(0)
+  volume24h        Float     @default(0)
+  liquidity        Float     @default(0)
+  openInterest     Float     @default(0)
 
-  markets     Market[]
+  // tags: 既保留 slug 数组便于查询，也存一份 {slug,label} 的原始结构
+  tagSlugs         String[]
+  tags             Json?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  rawData          Json?
+  syncedAt         DateTime  @default(now())
+
+  markets          Market[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([active, closed])
-  @@index([updatedAt])
+  @@index([volume])
+  @@index([syncedAt])
   @@map("events")
 }
 
-// ==================== 市场表 ====================
+// ==================== 市场表 (Polymarket Market) ====================
 model Market {
-  id            String   @id @default(cuid())
-  conditionId   String   @unique            // Polymarket conditionId
-  onChainId     String?                     // keccak256(conditionId), 链上 marketId
-  question      String
-  slug          String?
-  endDate       DateTime?
-  active        Boolean  @default(true)
-  closed        Boolean  @default(false)
-  outcomes      String[] // ["Yes", "No"]
-  outcomePrices Float[]  // [0.65, 0.35]
-  clobTokenIds  String[] // CLOB token IDs for Yes/No
-  liquidity     Float    @default(0)
-  volume        Float    @default(0)
+  id              String    @id               // Polymarket market ID
+  conditionId     String    @unique            // Polymarket conditionId (0x...)
+  questionId      String?
+  slug            String?
+  question        String
+  description     String?
+  outcomes        String[]                     // ["Yes", "No"]
+  outcomePrices   String[]                     // ["0.65", "0.35"]
+  clobTokenIds    String[]                     // [YES_token_id, NO_token_id]
+  startDate       DateTime?
+  endDate         DateTime?
+  active          Boolean   @default(true)
+  closed          Boolean   @default(false)
+  acceptingOrders Boolean   @default(true)
+  volume          Float     @default(0)
+  volume24h       Float     @default(0)
+  liquidity       Float     @default(0)
+  lastTradePrice  String?
+  bestBid         String?
+  bestAsk         String?
+  spread          Float?
+
+  onchainMarketId String?
+  resolutionStatus Int      @default(0)        // 0:未解析 1:NO胜 2:YES胜
+  resolvedAt      DateTime?
+
+  rawData         Json?
+  syncedAt        DateTime  @default(now())
 
   // 关联
-  eventId       String
-  event         Event    @relation(fields: [eventId], references: [id])
+  eventId         String
+  event           Event     @relation(fields: [eventId], references: [id])
 
-  priceHistory  PriceHistory[]
-  analyses      AnalysisTask[]
+  priceHistory    PriceHistory[]
+  analyses        AnalysisTask[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([active, closed])
   @@index([eventId])
-  @@index([updatedAt])
+  @@index([conditionId])
+  @@index([onchainMarketId])
+  @@index([syncedAt])
   @@map("markets")
 }
 
@@ -87,8 +115,9 @@ model AnalysisTask {
   market      Market   @relation(fields: [marketId], references: [id])
   status      String   @default("pending")  // pending | processing | completed | failed
   result      Json?                         // AI 分析结果 JSON
-  ogTxHash    String?                       // 0G Storage tx hash
-  error       String?
+  ogStorageKey String?                      // 0G KV key
+  errorMessage String?
+  completedAt DateTime?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

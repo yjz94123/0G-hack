@@ -215,13 +215,13 @@ npm run build
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/markets/events` | 获取事件列表（支持分页、标签筛选、排序） |
-| GET | `/markets/events/:eventId` | 获取事件详情（含子市场） |
-| GET | `/markets/orderbook/:tokenId` | 获取订单簿深度 |
-| GET | `/markets/price-history/:conditionId` | 获取价格历史 |
-| POST | `/markets/:marketId/analyze` | 触发 AI 分析 |
-| GET | `/markets/:marketId/analyses` | 获取市场分析列表 |
-| GET | `/markets/:marketId/snapshots` | 获取市场快照列表 |
+| GET | `/markets` | 获取事件列表（支持分页、标签筛选、排序） |
+| GET | `/markets/:eventId` | 获取事件详情（含子市场 + 订单簿） |
+| GET | `/markets/:eventId/orderbook/:marketId` | 获取子市场订单簿 |
+| GET | `/markets/:eventId/price-history/:marketId` | 获取价格历史 |
+| POST | `/markets/:eventId/analyze` | 触发 AI 分析（Body: `{ marketId }`） |
+| GET | `/markets/:eventId/analyses` | 获取分析历史（可用 `marketId` 过滤） |
+| GET | `/markets/:eventId/snapshots` | 获取市场快照列表（待实现） |
 
 ### Analysis
 
@@ -239,7 +239,7 @@ npm run build
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/snapshots/:marketId` | 获取市场快照 |
+| GET | `/snapshots/:rootHash` | 下载快照内容（待实现） |
 
 ### Health
 
@@ -288,7 +288,7 @@ npm run build
 | 页面 | 路由 | 功能 |
 |------|------|------|
 | **HomePage** | `/` | 市场列表、标签筛选 |
-| **MarketDetailPage** | `/market/:marketId` | 价格图表 + 订单簿 + 交易面板 + AI 分析 |
+| **MarketDetailPage** | `/market/:eventId` | 价格图表 + 订单簿 + 交易面板 + AI 分析 |
 | **PortfolioPage** | `/portfolio` | 用户持仓 + 交易历史 |
 
 ### 前端关键约定

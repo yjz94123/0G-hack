@@ -12,8 +12,8 @@ export class OracleService {
   private wallet: ethers.Wallet | null = null;
 
   constructor() {
-    if (config.zeroG.evmRpc && config.oracle.privateKey) {
-      this.provider = new ethers.JsonRpcProvider(config.zeroG.evmRpc);
+    if (config.og.rpcUrl && config.oracle.privateKey) {
+      this.provider = new ethers.JsonRpcProvider(config.og.rpcUrl);
       this.wallet = new ethers.Wallet(config.oracle.privateKey, this.provider);
     }
   }
