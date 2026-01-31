@@ -3,7 +3,8 @@
     "allow": [
       "Bash(yarn)",
       "Bash(yarn --version:*)",
-      "Bash(yarn install)"
+      "Bash(yarn install)",
+      "Bash(tree:*)"
     ]
   }
 }

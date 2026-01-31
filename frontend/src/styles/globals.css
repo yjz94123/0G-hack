@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 @layer base {
+  /* Light theme CSS variables (default) */
   :root {
-    color-scheme: light;
     --color-bg-base: 255 255 255;
     --color-bg-surface: 249 250 251;
     --color-bg-elevated: 243 244 246;
@@ -12,11 +12,11 @@
     --color-border-strong: 209 213 219;
     --color-text-primary: 17 24 39;
     --color-text-secondary: 75 85 99;
-    --color-text-muted: 107 114 128;
+    --color-text-muted: 156 163 175;
   }
 
+  /* Dark theme CSS variables */
   .dark {
-    color-scheme: dark;
     --color-bg-base: 2 6 23;
     --color-bg-surface: 15 23 42;
     --color-bg-elevated: 30 41 59;
@@ -28,7 +28,9 @@
   }
 
   body {
-    @apply antialiased bg-base text-fg-primary;
+    @apply antialiased;
+    background-color: rgb(var(--color-bg-base));
+    color: rgb(var(--color-text-primary));
   }
 
   /* 自定义滚动条 */

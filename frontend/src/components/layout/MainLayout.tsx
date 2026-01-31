@@ -4,6 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown } from 'lucide-react';
 import { clsx } from 'clsx';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 const MainLayout: React.FC = () => {
   const location = useLocation();
@@ -35,8 +36,8 @@ const MainLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-primary-500/30">
-      <header className="sticky top-0 z-50 border-b border-dark-800 bg-black/80 backdrop-blur-md">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white font-sans selection:bg-primary-500/30">
+      <header className="sticky top-0 z-50 border-b border-gray-200 dark:border-dark-800 bg-white/80 dark:bg-black/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2">
@@ -54,8 +55,8 @@ const MainLayout: React.FC = () => {
                   className={clsx(
                     'text-sm font-medium transition-colors',
                     location.pathname === item.path
-                      ? 'text-white'
-                      : 'text-dark-400 hover:text-white',
+                      ? 'text-black dark:text-white'
+                      : 'text-gray-600 dark:text-dark-400 hover:text-black dark:hover:text-white',
                     item.disabled && 'opacity-50 cursor-not-allowed pointer-events-none'
                   )}
                 >
@@ -71,10 +72,12 @@ const MainLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
+
             <div className="relative" ref={langMenuRef}>
               <button
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-dark-400 hover:text-white transition-colors rounded-lg hover:bg-dark-800"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-dark-400 hover:text-black dark:hover:text-white transition-colors rounded-lg hover:bg-gray-200 dark:hover:bg-dark-800"
                 title="Switch Language"
               >
                 <Globe className="w-4 h-4" />
@@ -83,12 +86,12 @@ const MainLayout: React.FC = () => {
               </button>
               
               {isLangMenuOpen && (
-                <div className="absolute right-0 mt-2 w-32 bg-dark-900 border border-dark-800 rounded-lg shadow-xl py-1 z-50">
+                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-dark-900 border border-gray-200 dark:border-dark-800 rounded-lg shadow-xl py-1 z-50">
                   <button
                     onClick={() => changeLanguage('en')}
                     className={clsx(
-                      "w-full text-left px-4 py-2 text-sm hover:bg-dark-800 transition-colors",
-                      i18n.language === 'en' ? "text-primary-500 font-medium" : "text-dark-300"
+                      "w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors",
+                      i18n.language === 'en' ? "text-primary-500 font-medium" : "text-gray-700 dark:text-dark-300"
                     )}
                   >
                     English
@@ -96,8 +99,8 @@ const MainLayout: React.FC = () => {
                   <button
                     onClick={() => changeLanguage('zh')}
                     className={clsx(
-                      "w-full text-left px-4 py-2 text-sm hover:bg-dark-800 transition-colors",
-                      i18n.language === 'zh' ? "text-primary-500 font-medium" : "text-dark-300"
+                      "w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors",
+                      i18n.language === 'zh' ? "text-primary-500 font-medium" : "text-gray-700 dark:text-dark-300"
                     )}
                   >
                     中文
@@ -106,9 +109,9 @@ const MainLayout: React.FC = () => {
               )}
             </div>
 
-            <div className="hidden sm:flex items-center bg-dark-900 rounded-lg border border-dark-800 px-3 py-1.5">
+            <div className="hidden sm:flex items-center bg-gray-100 dark:bg-dark-900 rounded-lg border border-gray-200 dark:border-dark-800 px-3 py-1.5">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2" />
-              <span className="text-xs text-dark-300 font-mono">{t('nav.testnetLive')}</span>
+              <span className="text-xs text-gray-700 dark:text-dark-300 font-mono">{t('nav.testnetLive')}</span>
             </div>
             <ConnectButton 
               accountStatus="avatar"
@@ -123,13 +126,13 @@ const MainLayout: React.FC = () => {
         <Outlet />
       </main>
 
-      <footer className="border-t border-dark-800 bg-dark-950 mt-auto">
-          <div className="container mx-auto px-4 py-8 flex items-center justify-between text-xs text-dark-500">
+      <footer className="border-t border-gray-200 dark:border-dark-800 bg-gray-50 dark:bg-dark-950 mt-auto">
+          <div className="container mx-auto px-4 py-8 flex items-center justify-between text-xs text-gray-500 dark:text-dark-500">
            <div>© 2026 0G Predict. {t('common.poweredBy')}</div>
            <div className="flex gap-4">
-             <a href="#" className="hover:text-white transition">{t('nav.docs')}</a>
-             <a href="#" className="hover:text-white transition">{t('nav.twitter')}</a>
-             <a href="#" className="hover:text-white transition">{t('nav.support')}</a>
+             <a href="#" className="hover:text-black dark:hover:text-white transition">{t('nav.docs')}</a>
+             <a href="#" className="hover:text-black dark:hover:text-white transition">{t('nav.twitter')}</a>
+             <a href="#" className="hover:text-black dark:hover:text-white transition">{t('nav.support')}</a>
            </div>
          </div>
       </footer>
