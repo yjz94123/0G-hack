@@ -2,7 +2,6 @@ import { app } from './app';
 import { config } from './config';
 import { logger } from './utils/logger';
 import { dataSyncer, orderBookCache } from './services/sync';
-import { marketMakerService } from './services/market-maker';
 
 async function main() {
   // Start Express server
@@ -21,11 +20,6 @@ async function main() {
   setInterval(() => {
     orderBookCache.cleanup();
   }, Math.max(config.sync.orderbookColdIntervalMs, 60_000));
-
-  // Market Maker Bot
-  if (config.marketMaker.enabled) {
-    marketMakerService.start();
-  }
 
   logger.info('All services initialized');
 }

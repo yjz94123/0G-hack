@@ -6,29 +6,29 @@ const TRADING_HUB_ABI = [
   // Write functions
   'function deposit(uint256 amount) external',
   'function withdraw(uint256 amount) external',
-  'function placeOrder(bytes32 marketId, uint8 outcome, uint8 side, uint256 price, uint256 amount) external returns (uint256)',
-  'function cancelOrder(uint256 orderId) external',
+  'function openPosition(address user, bytes32 marketId, uint8 outcome, uint256 usdcAmount, uint256 tokenAmount, uint256 price) external returns (uint256)',
+  'function closePosition(uint256 positionId, uint256 returnUsdc, uint256 priceAtClose) external',
+  'function fundReserve(uint256 amount) external',
   'function resolveMarket(bytes32 marketId, uint8 winningOutcome) external',
   'function redeem(bytes32 marketId) external',
   // Read functions
   'function userBalances(address) external view returns (uint256)',
-  'function lockedBalances(address) external view returns (uint256)',
-  'function orders(uint256) external view returns (uint256 id, address owner, bytes32 marketId, uint8 outcome, uint8 side, uint256 price, uint256 amount, uint256 timestamp, bool isActive)',
+  'function positions(uint256) external view returns (uint256 id, address user, bytes32 marketId, uint8 outcome, uint256 tokenAmount, uint256 costUsdc, uint256 priceAtOpen, uint256 openedAt, bool isOpen)',
   'function getTokenId(bytes32 marketId, uint8 outcome) external pure returns (uint256)',
   'function balanceOf(address account, uint256 id) external view returns (uint256)',
-  'function getUserOrderIds(address user) external view returns (uint256[])',
-  'function getUserActiveOrders(address user) external view returns (tuple(uint256 id, address owner, bytes32 marketId, uint8 outcome, uint8 side, uint256 price, uint256 amount, uint256 timestamp, bool isActive)[])',
+  'function getUserPositionIds(address user) external view returns (uint256[])',
+  'function getUserOpenPositions(address user) external view returns (tuple(uint256 id, address user, bytes32 marketId, uint8 outcome, uint256 tokenAmount, uint256 costUsdc, uint256 priceAtOpen, uint256 openedAt, bool isOpen)[])',
   'function getMarketStatus(bytes32 marketId) external view returns (uint8, uint8, uint256)',
-  'function getOrderBookSnapshot(bytes32 marketId, uint8 outcome) external view returns (uint256[], uint256[], uint256[], uint256[])',
   'function marketTotalLocked(bytes32) external view returns (uint256)',
+  'function nextPositionId() external view returns (uint256)',
   // Events
   'event Deposit(address indexed user, uint256 amount)',
   'event Withdraw(address indexed user, uint256 amount)',
-  'event OrderPlaced(uint256 indexed orderId, address indexed owner, bytes32 indexed marketId, uint8 outcome, uint8 side, uint256 price, uint256 amount)',
-  'event OrderCancelled(uint256 indexed orderId, address indexed owner)',
-  'event OrderMatched(bytes32 indexed marketId, uint256 buyOrderId, uint256 sellOrderId, uint256 price, uint256 amount, address buyer, address seller)',
+  'event PositionOpened(uint256 indexed positionId, address indexed user, bytes32 indexed marketId, uint8 outcome, uint256 tokenAmount, uint256 costUsdc, uint256 priceAtOpen)',
+  'event PositionClosed(uint256 indexed positionId, address indexed user, bytes32 indexed marketId, uint8 outcome, uint256 tokenAmount, uint256 returnUsdc, uint256 priceAtClose)',
   'event MarketResolved(bytes32 indexed marketId, uint8 winningOutcome, uint256 timestamp)',
   'event Redemption(address indexed user, bytes32 indexed marketId, uint256 tokenAmount, uint256 usdcAmount)',
+  'event ReserveFunded(address indexed funder, uint256 amount)',
 ];
 
 const DEMO_USDC_ABI = [
@@ -39,8 +39,8 @@ const DEMO_USDC_ABI = [
 ];
 
 /**
- * TradingHub 合约交互客户端
- * 负责与链上 TradingHub (ERC1155 + Order Book) 合约交互
+ * TradingHub 合约交互客户端（镜像交易模式）
+ * 负责与链上 TradingHub 合约交互：openPosition / closePosition / resolve / redeem
  */
 export class TradingHubClient {
   private provider: ethers.JsonRpcProvider | null = null;
@@ -51,13 +51,11 @@ export class TradingHubClient {
     }
   }
 
-  /** 获取 provider */
   getProvider(): ethers.JsonRpcProvider {
     if (!this.provider) throw new Error('Provider not configured');
     return this.provider;
   }
 
-  /** 获取 TradingHub 合约（支持自定义 signer） */
   getContract(signer?: ethers.Signer): ethers.Contract {
     const signerOrProvider = signer || this.getProvider();
     return new ethers.Contract(
@@ -67,7 +65,6 @@ export class TradingHubClient {
     );
   }
 
-  /** 获取 DemoUSDC 合约（支持自定义 signer） */
   getUsdcContract(signer?: ethers.Signer): ethers.Contract {
     const signerOrProvider = signer || this.getProvider();
     return new ethers.Contract(
@@ -77,14 +74,13 @@ export class TradingHubClient {
     );
   }
 
-  /** 获取 Oracle 签名者 */
   getOracleSigner(): ethers.Wallet {
     if (!config.oracle.privateKey) throw new Error('Oracle private key not configured');
     return new ethers.Wallet(config.oracle.privateKey, this.getProvider());
   }
 
   // ============================================================
-  //                    TradingHub Read Methods
+  //                    Read Methods
   // ============================================================
 
   async getUserBalance(userAddress: string): Promise<bigint> {
@@ -92,14 +88,31 @@ export class TradingHubClient {
     return contract.userBalances(userAddress);
   }
 
-  async getLockedBalance(userAddress: string): Promise<bigint> {
+  async getPosition(positionId: number): Promise<{
+    id: bigint;
+    user: string;
+    marketId: string;
+    outcome: number;
+    tokenAmount: bigint;
+    costUsdc: bigint;
+    priceAtOpen: bigint;
+    openedAt: bigint;
+    isOpen: boolean;
+  }> {
     const contract = this.getContract();
-    return contract.lockedBalances(userAddress);
+    const [id, user, marketId, outcome, tokenAmount, costUsdc, priceAtOpen, openedAt, isOpen] =
+      await contract.positions(positionId);
+    return { id, user, marketId, outcome, tokenAmount, costUsdc, priceAtOpen, openedAt, isOpen };
   }
 
-  async getUserActiveOrders(userAddress: string): Promise<unknown[]> {
+  async getUserPositionIds(userAddress: string): Promise<bigint[]> {
     const contract = this.getContract();
-    return contract.getUserActiveOrders(userAddress);
+    return contract.getUserPositionIds(userAddress);
+  }
+
+  async getUserOpenPositions(userAddress: string): Promise<unknown[]> {
+    const contract = this.getContract();
+    return contract.getUserOpenPositions(userAddress);
   }
 
   async getMarketStatus(marketId: string): Promise<{ status: number; winner: number; resolvedAt: bigint }> {
@@ -108,14 +121,57 @@ export class TradingHubClient {
     return { status, winner, resolvedAt };
   }
 
-  async getOrderBookSnapshot(marketId: string, outcome: number) {
-    const contract = this.getContract();
-    const [bidPrices, bidAmounts, askPrices, askAmounts] = await contract.getOrderBookSnapshot(marketId, outcome);
-    return { bidPrices, bidAmounts, askPrices, askAmounts };
+  // ============================================================
+  //                    Write Methods (Oracle/Owner)
+  // ============================================================
+
+  async openPosition(
+    user: string,
+    marketId: string,
+    outcome: number,
+    usdcAmount: bigint,
+    tokenAmount: bigint,
+    price: number,
+  ): Promise<{ receipt: ethers.ContractTransactionReceipt; positionId: bigint | null }> {
+    const signer = this.getOracleSigner();
+    const contract = this.getContract(signer);
+    logger.info({ user, marketId, outcome, usdcAmount: usdcAmount.toString(), price }, 'Opening position on-chain');
+    const tx = await contract.openPosition(user, marketId, outcome, usdcAmount, tokenAmount, price);
+    const receipt = await tx.wait();
+    const positionId = this.extractPositionId(receipt);
+    return { receipt, positionId };
+  }
+
+  async closePosition(
+    positionId: number,
+    returnUsdc: bigint,
+    priceAtClose: number,
+  ): Promise<ethers.ContractTransactionReceipt> {
+    const signer = this.getOracleSigner();
+    const contract = this.getContract(signer);
+    logger.info({ positionId, returnUsdc: returnUsdc.toString(), priceAtClose }, 'Closing position on-chain');
+    const tx = await contract.closePosition(positionId, returnUsdc, priceAtClose);
+    return tx.wait();
+  }
+
+  async fundReserve(amount: bigint): Promise<ethers.ContractTransactionReceipt> {
+    const signer = this.getOracleSigner();
+    const contract = this.getContract(signer);
+    const tx = await contract.fundReserve(amount);
+    return tx.wait();
+  }
+
+  async resolveMarket(marketId: string, outcome: number): Promise<string> {
+    const signer = this.getOracleSigner();
+    const contract = this.getContract(signer);
+    logger.info({ marketId, outcome }, 'Resolving market on-chain');
+    const tx = await contract.resolveMarket(marketId, outcome);
+    const receipt = await tx.wait();
+    return receipt.hash;
   }
 
   // ============================================================
-  //                    TradingHub Write Methods
+  //                    Write Methods (User-signed)
   // ============================================================
 
   async deposit(amount: bigint, signer: ethers.Signer): Promise<ethers.ContractTransactionReceipt> {
@@ -128,34 +184,6 @@ export class TradingHubClient {
     const contract = this.getContract(signer);
     const tx = await contract.withdraw(amount);
     return tx.wait();
-  }
-
-  async placeOrder(
-    marketId: string,
-    outcome: number,
-    side: number,
-    price: number,
-    amount: bigint,
-    signer: ethers.Signer,
-  ): Promise<ethers.ContractTransactionReceipt> {
-    const contract = this.getContract(signer);
-    const tx = await contract.placeOrder(marketId, outcome, side, price, amount);
-    return tx.wait();
-  }
-
-  async cancelOrder(orderId: number, signer: ethers.Signer): Promise<ethers.ContractTransactionReceipt> {
-    const contract = this.getContract(signer);
-    const tx = await contract.cancelOrder(orderId);
-    return tx.wait();
-  }
-
-  async resolveMarket(marketId: string, outcome: number): Promise<string> {
-    const signer = this.getOracleSigner();
-    const contract = this.getContract(signer);
-    logger.info({ marketId, outcome }, 'Resolving market on-chain');
-    const tx = await contract.resolveMarket(marketId, outcome);
-    const receipt = await tx.wait();
-    return receipt.hash;
   }
 
   async redeem(marketId: string, signer: ethers.Signer): Promise<ethers.ContractTransactionReceipt> {
@@ -194,27 +222,20 @@ export class TradingHubClient {
   //                     Event Parsing Helpers
   // ============================================================
 
-  /** 从交易 receipt 中解析 OrderPlaced 事件，提取 orderId */
-  extractOrderId(receipt: ethers.ContractTransactionReceipt): bigint | null {
+  /** 从 openPosition receipt 中解析 PositionOpened 事件，提取 positionId */
+  extractPositionId(receipt: ethers.ContractTransactionReceipt): bigint | null {
     const iface = new ethers.Interface(TRADING_HUB_ABI);
     for (const log of receipt.logs) {
       try {
         const parsed = iface.parseLog({ topics: log.topics as string[], data: log.data });
-        if (parsed && parsed.name === 'OrderPlaced') {
-          return parsed.args[0] as bigint; // orderId
+        if (parsed && parsed.name === 'PositionOpened') {
+          return parsed.args[0] as bigint; // positionId
         }
       } catch {
         // not our event, skip
       }
     }
     return null;
-  }
-
-  /** 监听合约事件 */
-  async listenToEvents(): Promise<void> {
-    const contract = this.getContract();
-    logger.info('Listening to TradingHub contract events');
-    // TODO: implement event listeners as needed
   }
 }
 

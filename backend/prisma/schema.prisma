@@ -47,7 +47,7 @@ model Event {
 // ==================== 市场表 (Polymarket Market) ====================
 model Market {
   id              String    @id               // Polymarket market ID
-  conditionId     String    @unique            // Polymarket conditionId (0x...)
+  conditionId     String?                       // Polymarket conditionId (0x...)
   questionId      String?
   slug            String?
   question        String
@@ -131,12 +131,13 @@ model AnalysisTask {
 model TradeRecord {
   id            String   @id @default(cuid())
   userAddress   String                       // 用户钱包地址
-  marketId      String                       // 关联市场
-  orderId       String   @unique             // 链上 order ID
+  marketId      String                       // 关联市场 (Polymarket ID)
+  positionId    String                       // 链上 position ID
   side          String                       // buy | sell
-  outcome       String                       // Yes | No
-  amount        Float                        // 交易数量
-  price         Float                        // 成交价格
+  outcome       String                       // YES | NO
+  amount        Float                        // token 数量 (人类可读)
+  price         Float                        // 成交价格 (0-1)
+  usdcCost      Float     @default(0)        // USDC 花费/返还
   txHash        String?                      // 链上交易哈希
   ogKvKey       String?                      // 0G KV Storage key
   status        String   @default("pending") // pending | confirmed | failed
@@ -146,6 +147,7 @@ model TradeRecord {
 
   @@index([userAddress])
   @@index([marketId])
+  @@index([positionId])
   @@index([status])
   @@map("trade_records")
 }
