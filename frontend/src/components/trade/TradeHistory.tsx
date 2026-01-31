@@ -1,0 +1,64 @@
+import type { TradeRecord } from '@og-predict/shared';
+import { Loading } from '../common';
+
+interface TradeHistoryProps {
+  trades: TradeRecord[];
+  isLoading: boolean;
+}
+
+export function TradeHistory({ trades, isLoading }: TradeHistoryProps) {
+  if (isLoading) return <Loading size="sm" text="Loading trades..." />;
+
+  if (trades.length === 0) {
+    return (
+      <div className="text-center text-dark-500 text-sm py-6">
+        No trade history
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-dark-500 text-xs border-b border-dark-800">
+            <th className="text-left py-2 font-medium">Market</th>
+            <th className="text-left py-2 font-medium">Side</th>
+            <th className="text-left py-2 font-medium">Outcome</th>
+            <th className="text-right py-2 font-medium">Amount</th>
+            <th className="text-right py-2 font-medium">Price</th>
+            <th className="text-right py-2 font-medium">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trades.map((trade) => (
+            <tr key={trade.orderId} className="border-b border-dark-800/50">
+              <td className="py-2 text-dark-300 max-w-[150px] truncate">{trade.marketId}</td>
+              <td className="py-2">
+                <span className={trade.side === 'buy' ? 'text-green-400' : 'text-red-400'}>
+                  {trade.side.toUpperCase()}
+                </span>
+              </td>
+              <td className="py-2 text-dark-300">{trade.outcome}</td>
+              <td className="py-2 text-right text-dark-300">{trade.amount.toFixed(2)}</td>
+              <td className="py-2 text-right text-dark-300">{(trade.price * 100).toFixed(0)}c</td>
+              <td className="py-2 text-right">
+                <span
+                  className={`px-2 py-0.5 text-xs rounded-full ${
+                    trade.status === 'confirmed'
+                      ? 'bg-green-500/10 text-green-400'
+                      : trade.status === 'failed'
+                        ? 'bg-red-500/10 text-red-400'
+                        : 'bg-yellow-500/10 text-yellow-400'
+                  }`}
+                >
+                  {trade.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
