@@ -1,6 +1,7 @@
 import { useReadContract, useWatchContractEvent } from 'wagmi';
 import { formatUnits } from 'viem';
 import { CONTRACTS, USDC_DECIMALS, OUTCOME } from '../config';
+import { normalizeMarketIdBytes32 } from '../utils';
 import { useEffect, useState } from 'react';
 
 export interface Order {
@@ -74,7 +75,7 @@ export function useUserOrders(userAddress?: `0x${string}`) {
  * Hook to get all order IDs for a market
  */
 export function useMarketOrders(marketId?: string) {
-  const marketIdBytes = marketId ? `0x${marketId.replace(/^0x/, '')}` as `0x${string}` : undefined;
+  const marketIdBytes = normalizeMarketIdBytes32(marketId);
 
   const { data, isLoading, error, refetch } = useReadContract({
     address: CONTRACTS.TradingHub.address,
@@ -98,7 +99,7 @@ export function useMarketOrders(marketId?: string) {
  * Hook to get user's orders for a specific market
  */
 export function useUserMarketOrders(userAddress?: `0x${string}`, marketId?: string) {
-  const marketIdBytes = marketId ? `0x${marketId.replace(/^0x/, '')}` as `0x${string}` : undefined;
+  const marketIdBytes = normalizeMarketIdBytes32(marketId);
 
   const { data, isLoading, error, refetch } = useReadContract({
     address: CONTRACTS.TradingHub.address,

@@ -1,6 +1,10 @@
 import { parseUnits, formatUnits } from 'viem';
 import { USDC_DECIMALS, MINT_COOLDOWN } from './config';
 
+function isHexString(value: string): boolean {
+  return /^[0-9a-fA-F]+$/.test(value);
+}
+
 /**
  * Format USDC amount from wei to human-readable string
  */
@@ -52,14 +56,21 @@ export function formatCooldown(seconds: number): string {
 /**
  * Convert market ID to bytes32 format
  */
-export function marketIdToBytes32(marketId: string): `0x${string}` {
-  // Remove 0x prefix if present
+export function normalizeMarketIdBytes32(marketId?: string): `0x${string}` | undefined {
+  if (!marketId) return undefined;
   const cleanId = marketId.replace(/^0x/, '');
-
-  // Pad to 64 characters (32 bytes)
+  if (!isHexString(cleanId)) return undefined;
+  if (cleanId.length > 64) return undefined;
   const paddedId = cleanId.padStart(64, '0');
-
   return `0x${paddedId}`;
+}
+
+export function marketIdToBytes32(marketId: string): `0x${string}` {
+  const normalized = normalizeMarketIdBytes32(marketId);
+  if (!normalized) {
+    throw new Error('Invalid marketId hex string');
+  }
+  return normalized;
 }
 
 /**
