@@ -37,7 +37,7 @@ export function MarketDataRow({ event }: MarketDataRowProps) {
     <div className="group relative">
       <Link 
         to={`/market/${event.eventId}`}
-        className="grid grid-cols-12 gap-4 items-center p-4 rounded-lg hover:bg-dark-900/60 transition-colors border-b border-dark-800/50 hover:border-transparent"
+        className="grid grid-cols-12 gap-4 items-center p-4 rounded-lg hover:bg-surface/60 transition-colors border-b border-border/50 hover:border-transparent"
       >
         {/* Market Title & Icon */}
         <div className="col-span-12 md:col-span-6 flex gap-4">
@@ -46,26 +46,26 @@ export function MarketDataRow({ event }: MarketDataRowProps) {
               <img 
                 src={event.imageUrl || event.iconUrl || ''} 
                 alt={event.title} 
-                className="w-10 h-10 rounded-full object-cover bg-dark-800"
+                className="w-10 h-10 rounded-full object-cover bg-elevated"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center text-dark-500">
+              <div className="w-10 h-10 rounded-full bg-elevated flex items-center justify-center text-fg-muted">
                 ?
               </div>
             )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
-              <h3 className="text-white font-medium leading-snug max-h-[2.6em] overflow-hidden group-hover:text-primary-400 transition-colors">
+              <h3 className="text-fg-primary font-medium leading-snug max-h-[2.6em] overflow-hidden group-hover:text-primary-400 transition-colors">
                 {event.title}
               </h3>
-              <span className="hidden sm:inline-flex flex-shrink-0 px-2 py-0.5 bg-dark-800 text-dark-300 text-[11px] rounded border border-dark-700">
+              <span className="hidden sm:inline-flex flex-shrink-0 px-2 py-0.5 bg-elevated text-fg-secondary text-[11px] rounded border border-border-strong">
                 {marketsCount} {t('marketList.markets')}
               </span>
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-dark-400">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-fg-secondary">
               {event.tags?.[0]?.label && (
-                <span className="px-2 py-0.5 rounded-full bg-dark-800 text-dark-300 border border-dark-700">
+                <span className="px-2 py-0.5 rounded-full bg-elevated text-fg-secondary border border-border-strong">
                   {event.tags[0].label}
                 </span>
               )}
@@ -85,7 +85,7 @@ export function MarketDataRow({ event }: MarketDataRowProps) {
                 </span>
               )}
               {event.description && (
-                <span className="hidden lg:inline text-dark-500 truncate">
+                <span className="hidden lg:inline text-fg-muted truncate">
                   • {event.description}
                 </span>
               )}
@@ -95,25 +95,25 @@ export function MarketDataRow({ event }: MarketDataRowProps) {
 
         {/* 24h Volume */}
         <div className="col-span-4 md:col-span-2 text-right hidden md:block">
-          <div className="text-white font-medium">{formatMoney(event.volume24h || 0)}</div>
+          <div className="text-fg-primary font-medium">{formatMoney(event.volume24h || 0)}</div>
         </div>
 
         {/* Total Volume */}
         <div className="col-span-4 md:col-span-2 text-right">
-          <div className="text-white font-medium">{formatMoney(volume)}</div>
-          <div className="text-dark-500 text-xs mt-0.5 md:hidden">{t('marketList.totalVol')}</div>
+          <div className="text-fg-primary font-medium">{formatMoney(volume)}</div>
+          <div className="text-fg-muted text-xs mt-0.5 md:hidden">{t('marketList.totalVol')}</div>
         </div>
 
         {/* Liquidity */}
         <div className="col-span-4 md:col-span-2 text-right hidden sm:block">
-          <div className="text-white font-medium">{formatMoney(liquidity)}</div>
-          <div className="text-dark-500 text-xs mt-0.5 md:hidden">{t('marketList.liquidity')}</div>
+          <div className="text-fg-primary font-medium">{formatMoney(liquidity)}</div>
+          <div className="text-fg-muted text-xs mt-0.5 md:hidden">{t('marketList.liquidity')}</div>
         </div>
       </Link>
       
       {/* Mobile-only markets count badge */}
         <div className="absolute top-4 right-4 md:hidden">
-            <span className="px-2 py-0.5 bg-dark-800 text-dark-300 text-[10px] rounded border border-dark-700">
+            <span className="px-2 py-0.5 bg-elevated text-fg-secondary text-[10px] rounded border border-border-strong">
                 {marketsCount} {t('marketList.markets')}
             </span>
         </div>

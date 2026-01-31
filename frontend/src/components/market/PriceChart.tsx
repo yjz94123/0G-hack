@@ -17,11 +17,11 @@ export function PriceChart({ data, isLoading }: PriceChartProps) {
   const changePercent = (change / first.price) * 100;
 
   return (
-    <div className="bg-dark-900 rounded-xl border border-dark-800 p-4">
+    <div className="bg-surface rounded-xl border border-border p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-dark-300">Price History</h3>
+        <h3 className="text-sm font-medium text-fg-primary">Price History</h3>
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-white font-medium">
+          <span className="text-fg-primary font-medium">
             {(latest.price * 100).toFixed(1)}%
           </span>
           <span className={change >= 0 ? 'text-green-400' : 'text-red-400'}>
@@ -31,7 +31,7 @@ export function PriceChart({ data, isLoading }: PriceChartProps) {
       </div>
 
       {/* Placeholder for chart - will be replaced with actual chart library */}
-      <div className="h-48 flex items-center justify-center text-dark-600 text-sm">
+      <div className="h-48 flex items-center justify-center text-fg-muted text-sm">
         Chart placeholder - {data.history.length} data points
       </div>
     </div>

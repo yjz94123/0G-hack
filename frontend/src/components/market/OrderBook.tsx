@@ -20,10 +20,10 @@ export function OrderBook({ data, isLoading }: OrderBookProps) {
   );
 
   return (
-    <div className="bg-dark-900 rounded-xl border border-dark-800 p-4">
-      <h3 className="text-sm font-medium text-dark-300 mb-3">Order Book</h3>
+    <div className="bg-surface rounded-xl border border-border p-4">
+      <h3 className="text-sm font-medium text-fg-primary mb-3">Order Book</h3>
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-dark-500 mb-2">
+      <div className="grid grid-cols-2 gap-2 text-xs text-fg-muted mb-2">
         <div className="flex justify-between">
           <span>Price</span>
           <span>Size</span>
@@ -44,7 +44,7 @@ export function OrderBook({ data, isLoading }: OrderBookProps) {
                 style={{ width: `${(parseFloat(bid.size) / maxTotal) * 100}%` }}
               />
               <span className="relative text-green-400">{parseFloat(bid.price).toFixed(2)}</span>
-              <span className="relative text-dark-300">{parseFloat(bid.size).toFixed(0)}</span>
+              <span className="relative text-fg-secondary">{parseFloat(bid.size).toFixed(0)}</span>
             </div>
           ))}
         </div>
@@ -58,14 +58,14 @@ export function OrderBook({ data, isLoading }: OrderBookProps) {
                 style={{ width: `${(parseFloat(ask.size) / maxTotal) * 100}%` }}
               />
               <span className="relative text-red-400">{parseFloat(ask.price).toFixed(2)}</span>
-              <span className="relative text-dark-300">{parseFloat(ask.size).toFixed(0)}</span>
+              <span className="relative text-fg-secondary">{parseFloat(ask.size).toFixed(0)}</span>
             </div>
           ))}
         </div>
       </div>
 
       {data.yes.spread !== undefined && (
-        <div className="mt-2 text-center text-xs text-dark-500">
+        <div className="mt-2 text-center text-xs text-fg-muted">
           Spread: {(parseFloat(data.yes.spread) * 100).toFixed(2)}%
         </div>
       )}

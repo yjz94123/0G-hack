@@ -4,6 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
+        base: 'rgb(var(--color-bg-base) / <alpha-value>)',
+        surface: 'rgb(var(--color-bg-surface) / <alpha-value>)',
+        elevated: 'rgb(var(--color-bg-elevated) / <alpha-value>)',
+        border: 'rgb(var(--color-border) / <alpha-value>)',
+        'border-strong': 'rgb(var(--color-border-strong) / <alpha-value>)',
+        fg: {
+          primary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+          secondary: 'rgb(var(--color-text-secondary) / <alpha-value>)',
+          muted: 'rgb(var(--color-text-muted) / <alpha-value>)',
+        },
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',

@@ -9,7 +9,7 @@ export function EventCard({ event }: EventCardProps) {
   return (
     <Link
       to={`/market/${event.eventId}`}
-      className="block p-4 rounded-xl bg-dark-900 border border-dark-800 hover:border-dark-600 transition"
+      className="block p-4 rounded-xl bg-surface border border-border hover:border-border-strong transition"
     >
       <div className="flex items-start gap-3">
         {event.imageUrl && (
@@ -20,8 +20,8 @@ export function EventCard({ event }: EventCardProps) {
           />
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-white truncate">{event.title}</h3>
-          <div className="mt-2 flex items-center gap-4 text-sm text-dark-400">
+          <h3 className="font-medium text-fg-primary truncate">{event.title}</h3>
+          <div className="mt-2 flex items-center gap-4 text-sm text-fg-secondary">
             <span>Vol: ${(event.volume / 1e6).toFixed(1)}M</span>
             <span>Liq: ${(event.liquidity / 1e6).toFixed(1)}M</span>
           </div>
@@ -30,7 +30,7 @@ export function EventCard({ event }: EventCardProps) {
               <span className="text-green-400 font-medium">
                 {(parseFloat(event.markets[0].bestBid) * 100).toFixed(0)}%
               </span>
-              <span className="text-dark-500 ml-1">Yes</span>
+              <span className="text-fg-muted ml-1">Yes</span>
             </div>
           )}
         </div>
@@ -40,7 +40,7 @@ export function EventCard({ event }: EventCardProps) {
           {event.tags.map((tag) => (
             <span
               key={tag.slug}
-              className="px-2 py-0.5 text-xs rounded-full bg-dark-800 text-dark-400"
+              className="px-2 py-0.5 text-xs rounded-full bg-elevated text-fg-secondary"
             >
               {tag.label}
             </span>
