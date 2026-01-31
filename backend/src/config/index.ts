@@ -24,6 +24,10 @@ export const config = {
     },
     compute: {
       privateKey: process.env.COMPUTE_PRIVATE_KEY!,
+      apiKey: process.env.OG_COMPUTE_API_KEY || '',
+      baseUrl: process.env.OG_COMPUTE_BASE_URL || 'https://compute-network-6.integratenetwork.work/v1/proxy',
+      model: process.env.OG_COMPUTE_MODEL || 'qwen/qwen-2.5-7b-instruct',
+      maxTokens: parseInt(process.env.OG_COMPUTE_MAX_TOKENS || '4096', 10),
     },
   },
 

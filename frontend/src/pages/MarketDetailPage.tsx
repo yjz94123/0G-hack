@@ -25,13 +25,13 @@ function MarketExpandedPanel({
   return (
     <div className="mt-2 space-y-3">
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-dark-700 pb-0">
+      <div className="flex gap-1 border-b border-border-strong pb-0">
         <button
           onClick={(e) => { e.stopPropagation(); setActiveTab('orderbook'); }}
           className={`px-3 py-1.5 text-xs font-medium rounded-t transition ${
             activeTab === 'orderbook'
-              ? 'bg-dark-700 text-white border-b-2 border-primary-500'
-              : 'text-dark-400 hover:text-dark-200'
+              ? 'bg-elevated text-fg-primary border-b-2 border-primary-500'
+              : 'text-fg-muted hover:text-fg-secondary'
           }`}
         >
           {t('marketDetail.orderBook')}
@@ -40,8 +40,8 @@ function MarketExpandedPanel({
           onClick={(e) => { e.stopPropagation(); setActiveTab('chart'); }}
           className={`px-3 py-1.5 text-xs font-medium rounded-t transition flex items-center gap-1 ${
             activeTab === 'chart'
-              ? 'bg-dark-700 text-white border-b-2 border-primary-500'
-              : 'text-dark-400 hover:text-dark-200'
+              ? 'bg-elevated text-fg-primary border-b-2 border-primary-500'
+              : 'text-fg-muted hover:text-fg-secondary'
           }`}
         >
           <BarChart2 className="w-3 h-3" />
@@ -120,44 +120,46 @@ export function MarketDetailPage() {
       <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 border-b border-border pb-8">
         <div className="flex-1">
           <div className="flex items-start gap-4">
-             {event.imageUrl && (
-                <img 
-                  src={event.imageUrl} 
-                  alt={event.title} 
-                  className="w-16 h-16 rounded-lg object-cover bg-elevated"
-                />
-             )}
-             <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-fg-primary mb-3">{event.title}</h1>
-                 <div className="flex flex-wrap items-center gap-6 text-sm">
-                    <div className="flex items-center gap-2 text-fg-secondary">
-                       <Clock className="w-4 h-4" />
-                       <span>{t('marketDetail.expires')} {new Date(event.endDate).toLocaleDateString()}</span>
-                    </div>
+            {event.imageUrl && (
+              <img
+                src={event.imageUrl}
+                alt={event.title}
+                className="w-16 h-16 rounded-lg object-cover bg-elevated"
+              />
+            )}
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-fg-primary mb-3">{event.title}</h1>
+              <div className="flex flex-wrap items-center gap-6 text-sm">
+                <div className="flex items-center gap-2 text-fg-secondary">
+                  <Clock className="w-4 h-4" />
+                  <span>
+                    {t('marketDetail.expires')} {new Date(event.endDate).toLocaleDateString()}
+                  </span>
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="flex gap-4">
-           {/* Rules Button */}
-           <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-elevated text-fg-primary hover:bg-elevated/80 transition border border-border-strong">
-              <Info className="w-4 h-4" />
-              <span>{t('marketDetail.rules')}</span>
-           </button>
+          {/* Rules Button */}
+          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-elevated text-fg-primary hover:bg-elevated/80 transition border border-border-strong">
+            <Info className="w-4 h-4" />
+            <span>{t('marketDetail.rules')}</span>
+          </button>
         </div>
       </div>
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-         <div className="bg-surface/60 rounded-lg p-3 border border-border">
-            <div className="text-xs text-fg-muted mb-1">{t('marketDetail.volume')}</div>
-            <div className="text-lg font-medium text-fg-primary">{formatMoney(volume)}</div>
-         </div>
-         <div className="bg-surface/60 rounded-lg p-3 border border-border">
-            <div className="text-xs text-fg-muted mb-1">{t('marketDetail.liquidity')}</div>
-            <div className="text-lg font-medium text-fg-primary">{formatMoney(liquidity)}</div>
-         </div>
+        <div className="bg-surface/60 rounded-lg p-3 border border-border">
+          <div className="text-xs text-fg-muted mb-1">{t('marketDetail.volume')}</div>
+          <div className="text-lg font-medium text-fg-primary">{formatMoney(volume)}</div>
+        </div>
+        <div className="bg-surface/60 rounded-lg p-3 border border-border">
+          <div className="text-xs text-fg-muted mb-1">{t('marketDetail.liquidity')}</div>
+          <div className="text-lg font-medium text-fg-primary">{formatMoney(liquidity)}</div>
+        </div>
       </div>
 
       {/* Main Grid Layout */}

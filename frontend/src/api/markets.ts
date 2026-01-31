@@ -1,4 +1,5 @@
 import { apiGet, apiPost } from './client';
+import { baseURL } from './client';
 import type {
   EventSummary,
   EventDetail,
@@ -65,4 +66,69 @@ export function fetchAnalyses(
 /** 获取分析详情 */
 export function fetchAnalysisDetail(taskId: string) {
   return apiGet<AnalysisTask>(`/analysis/${taskId}`);
+}
+
+export type AnalysisStreamMessage =
+  | { type: 'task'; taskId: string }
+  | { type: 'delta'; content: string }
+  | { type: 'done'; taskId: string; result: unknown | null }
+  | { type: 'error'; taskId: string; message: string };
+
+/** 流式触发 AI 分析（NDJSON） */
+export async function streamAnalysis(
+  eventId: string,
+  marketId: string,
+  body: { question?: string } | undefined,
+  options: {
+    signal?: AbortSignal;
+    onMessage: (msg: AnalysisStreamMessage) => void;
+  }
+): Promise<void> {
+  const resp = await fetch(`${baseURL}/markets/${eventId}/analyze/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ marketId, ...(body ?? {}) }),
+    signal: options.signal,
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(text || resp.statusText);
+  }
+
+  if (!resp.body) throw new Error('No response body');
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let nl: number;
+    while ((nl = buffer.indexOf('\n')) !== -1) {
+      const line = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (!line) continue;
+
+      try {
+        const msg = JSON.parse(line) as AnalysisStreamMessage;
+        options.onMessage(msg);
+        if (msg.type === 'done' || msg.type === 'error') return;
+      } catch {
+        // ignore invalid NDJSON line
+      }
+    }
+  }
+
+  if (buffer.trim()) {
+    try {
+      const msg = JSON.parse(buffer.trim()) as AnalysisStreamMessage;
+      options.onMessage(msg);
+    } catch {
+      // ignore
+    }
+  }
 }

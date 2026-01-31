@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { ogComputeClient } from './og-compute';
-import { buildMarketAnalysisPrompt, SYSTEM_PROMPT } from './prompts';
+import { buildBasPrompt, extractLastJsonCodeBlock } from './bas-prompt';
 import { ogKvClient } from '../storage';
 import { logger } from '../../utils/logger';
 import { prisma } from '../../db/prisma';
@@ -9,12 +9,9 @@ import type { AnalysisTask, AnalysisStatus } from '@og-predict/shared';
 
 export interface AnalysisRequest {
   marketId: string;
-  question: string;
-  yesPrice: number;
-  noPrice: number;
-  volume: number;
-  liquidity: number;
-  orderBookDepth: { bids: number; asks: number };
+  event: string;
+  resolutionDate?: string;
+  resolutionCriteria?: string;
 }
 
 /**
@@ -57,32 +54,21 @@ export class AiService {
         data: { status: 'processing' },
       });
 
-      const prompt = buildMarketAnalysisPrompt({
-        question: request.question,
-        yesPrice: request.yesPrice,
-        noPrice: request.noPrice,
-        volume: request.volume,
-        liquidity: request.liquidity,
-        orderBookDepth: request.orderBookDepth,
+      const today = new Date().toISOString().slice(0, 10);
+      const prompt = buildBasPrompt({
+        event: request.event,
+        today,
+        resolutionDate: request.resolutionDate,
+        resolutionCriteria: request.resolutionCriteria,
       });
 
-      const response = await ogComputeClient.chatCompletion([
-        { role: 'system', content: SYSTEM_PROMPT },
+      const responseText = await ogComputeClient.chatCompletion([
+        { role: 'system', content: 'You are a helpful assistant.' },
         { role: 'user', content: prompt },
       ]);
 
-      let result: unknown;
-      try {
-        result = JSON.parse(response);
-      } catch {
-        result = {
-          prediction: 'YES',
-          confidence: 50,
-          proArguments: [{ argument: response, confidence: 50 }],
-          conArguments: [],
-          reasoning: response,
-        };
-      }
+      const extracted = extractLastJsonCodeBlock(responseText);
+      const result: unknown = extracted?.value ?? { rawOutput: responseText };
 
       const ogStorageKey = `analysis:${request.marketId}:${taskId}`;
 
@@ -123,17 +109,15 @@ export class AiService {
     if (!task) return null;
 
     const status = task.status as AnalysisStatus;
-    const result = (task.result ?? {}) as any;
+    const result = task.result ?? undefined;
+    const resultObj = (task.result ?? {}) as any;
 
     return {
       taskId: task.taskId,
       marketId: task.marketId,
       status,
-      prediction: result.prediction,
-      confidence: result.confidence,
-      proArguments: result.proArguments,
-      conArguments: result.conArguments,
-      reasoning: result.reasoning,
+      result,
+      confidence: typeof resultObj?.confidence === 'number' ? resultObj.confidence : undefined,
       ogStorageKey: task.ogStorageKey ?? undefined,
       errorMessage: task.errorMessage ?? undefined,
       createdAt: task.createdAt.toISOString(),
@@ -151,13 +135,14 @@ export class AiService {
     });
 
     return tasks.map((t) => {
-      const result = (t.result ?? {}) as any;
+      const result = t.result ?? undefined;
+      const resultObj = (t.result ?? {}) as any;
       return {
         taskId: t.taskId,
         marketId: t.marketId,
         status: t.status as AnalysisStatus,
-        prediction: result.prediction,
-        confidence: result.confidence,
+        result,
+        confidence: typeof resultObj?.confidence === 'number' ? resultObj.confidence : undefined,
         createdAt: t.createdAt.toISOString(),
         completedAt: t.completedAt?.toISOString(),
         updatedAt: t.updatedAt.toISOString(),

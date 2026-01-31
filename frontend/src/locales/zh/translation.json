@@ -51,5 +51,27 @@
     "priceHistory": "价格走势",
     "orderBook": "订单簿",
     "marketUnavailable": "市场数据暂不可用"
+  },
+  "ai": {
+    "analysisTitle": "AI 分析",
+    "run": "AI 分析",
+    "stop": "停止",
+    "running": "分析中...",
+    "latest5Lines": "输出（最新 5 行）",
+    "noOutput": "暂无输出",
+    "bas": "下注价值分数（BAS）",
+    "event": "事件",
+    "priorProbability": "先验概率",
+    "posteriorProbability": "后验概率",
+    "confidence": "置信度",
+    "fairBand": "公平概率区间",
+    "evidenceCount": "证据条数",
+    "evidenceNetSignal": "净信号",
+    "evidenceTotalWeight": "总权重",
+    "riskFactors": "风险因子",
+    "riskResolution": "结算",
+    "riskTime": "时间",
+    "riskTail": "尾部",
+    "formula": "公式"
   }
 }

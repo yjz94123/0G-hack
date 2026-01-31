@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import type { ApiResponse, AnalysisStatus, AnalysisTask, EventDetail, EventSummary, OrderBookData, PriceHistory } from '@og-predict/shared';
+import { randomUUID } from 'crypto';
 import { validate } from '../middleware/validator';
 import { AppError } from '../middleware/error-handler';
 import { prisma } from '../db/prisma';
@@ -8,6 +9,8 @@ import { orderBookCache } from '../services/sync';
 import { clobClient } from '../services/polymarket';
 import type { ClobOrderBook } from '../services/polymarket/types';
 import { aiService } from '../services/ai';
+import { ogComputeClient } from '../services/ai/og-compute';
+import { buildBasPrompt, extractLastJsonCodeBlock } from '../services/ai/bas-prompt';
 
 export const marketsRouter = Router();
 
@@ -329,22 +332,110 @@ marketsRouter.post('/:eventId/analyze', validate(analyzeBodySchema, 'body'), asy
     const market = event.markets.find((m) => m.id === marketId);
     if (!market) throw new AppError(404, 'MARKET_NOT_FOUND', `Market '${marketId}' not found in event '${eventId}'`);
 
-    const yesPrice = Number(market.outcomePrices?.[0] ?? 0);
-    const noPrice = Number(market.outcomePrices?.[1] ?? 0);
-
     const task = await aiService.createAnalysis({
       marketId,
-      question: body.question ?? market.question,
-      yesPrice,
-      noPrice,
-      volume: market.volume,
-      liquidity: market.liquidity,
-      orderBookDepth: { bids: 20, asks: 20 },
+      event: body.question ?? event.title,
+      resolutionDate: event.endDate?.toISOString(),
+      resolutionCriteria: event.resolutionSource ?? undefined,
     });
 
     res.status(202).json({ success: true, data: task });
   } catch (err) {
     next(err);
+  }
+});
+
+// POST /api/v1/markets/:eventId/analyze/stream - 流式 AI 分析（输出过程 + 最终 JSON）
+marketsRouter.post('/:eventId/analyze/stream', validate(analyzeBodySchema, 'body'), async (req, res) => {
+  const eventId = getParam(req.params.eventId);
+  const body = req.body as unknown as z.infer<typeof analyzeBodySchema>;
+
+  const abortController = new AbortController();
+  const abort = () => {
+    if (!abortController.signal.aborted) abortController.abort();
+  };
+  req.on('aborted', abort);
+  res.on('close', abort);
+
+  res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const taskId = randomUUID();
+
+  try {
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+      include: { markets: { orderBy: [{ volume: 'desc' }] } },
+    });
+    if (!event) throw new AppError(404, 'EVENT_NOT_FOUND', `Event '${eventId}' not found`);
+
+    const marketId = body.marketId ?? event.markets[0]?.id;
+    if (!marketId) throw new AppError(404, 'MARKET_NOT_FOUND', `No market found in event '${eventId}'`);
+
+    const market = event.markets.find((m) => m.id === marketId);
+    if (!market) throw new AppError(404, 'MARKET_NOT_FOUND', `Market '${marketId}' not found in event '${eventId}'`);
+
+    await prisma.analysisTask.create({
+      data: {
+        taskId,
+        marketId,
+        status: 'processing',
+      },
+    });
+
+    res.write(JSON.stringify({ type: 'task', taskId }) + '\n');
+
+    const today = new Date().toISOString().slice(0, 10);
+    const prompt = buildBasPrompt({
+      event: body.question ?? event.title,
+      today,
+      resolutionDate: event.endDate?.toISOString() ?? '',
+      resolutionCriteria: event.resolutionSource ?? '',
+    });
+
+    let fullText = '';
+    fullText = await ogComputeClient.streamChatCompletion(
+      [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'user', content: prompt },
+      ],
+      {
+        signal: abortController.signal,
+        onDelta: (chunk) => {
+          res.write(JSON.stringify({ type: 'delta', content: chunk }) + '\n');
+        },
+      }
+    );
+
+    const extracted = extractLastJsonCodeBlock(fullText);
+    const resultToStore = extracted?.value ?? { rawOutput: fullText };
+
+    await prisma.analysisTask.update({
+      where: { taskId },
+      data: {
+        status: 'completed',
+        result: resultToStore as any,
+        completedAt: new Date(),
+        ogStorageKey: `analysis:${marketId}:${taskId}`,
+      },
+    });
+
+    res.write(JSON.stringify({ type: 'done', taskId, result: extracted?.value ?? null }) + '\n');
+    res.end();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await prisma.analysisTask.update({
+      where: { taskId },
+      data: { status: 'failed', errorMessage: message },
+    }).catch(() => undefined);
+
+    try {
+      res.write(JSON.stringify({ type: 'error', taskId, message }) + '\n');
+      res.end();
+    } catch {
+      // ignore write failures
+    }
   }
 });
 
@@ -377,16 +468,14 @@ marketsRouter.get('/:eventId/analyses', validate(listAnalysesQuerySchema, 'query
     });
 
     const tasks: AnalysisTask[] = rows.map((t) => {
-      const result = (t.result ?? {}) as any;
+      const result = t.result ?? undefined;
+      const resultObj = (t.result ?? {}) as any;
       return {
         taskId: t.taskId,
         marketId: t.marketId,
         status: t.status as AnalysisStatus,
-        prediction: result.prediction,
-        confidence: result.confidence,
-        proArguments: result.proArguments,
-        conArguments: result.conArguments,
-        reasoning: result.reasoning,
+        result,
+        confidence: typeof resultObj?.confidence === 'number' ? resultObj.confidence : undefined,
         ogStorageKey: t.ogStorageKey ?? undefined,
         errorMessage: t.errorMessage ?? undefined,
         createdAt: t.createdAt.toISOString(),

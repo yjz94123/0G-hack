@@ -12,6 +12,8 @@ export interface AnalysisTask {
   taskId: string;
   marketId: string;
   status: AnalysisStatus;
+  /** 结构化结果（通常来自提示词末尾 JSON） */
+  result?: unknown;
   prediction?: 'YES' | 'NO';
   confidence?: number;
   proArguments?: AnalysisArgument[];

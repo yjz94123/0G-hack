@@ -51,5 +51,27 @@
     "priceHistory": "Price History",
     "orderBook": "Order Book",
     "marketUnavailable": "Market data unavailable"
+  },
+  "ai": {
+    "analysisTitle": "AI Analysis",
+    "run": "AI Analysis",
+    "stop": "Stop",
+    "running": "Analyzing...",
+    "latest5Lines": "Output (latest 5 lines)",
+    "noOutput": "No output yet",
+    "bas": "Bet Attractiveness Score (BAS)",
+    "event": "Event",
+    "priorProbability": "Prior probability",
+    "posteriorProbability": "Posterior probability",
+    "confidence": "Confidence",
+    "fairBand": "Fair probability band",
+    "evidenceCount": "Evidence count",
+    "evidenceNetSignal": "Net signal",
+    "evidenceTotalWeight": "Total weight",
+    "riskFactors": "Risk factors",
+    "riskResolution": "Resolution",
+    "riskTime": "Time",
+    "riskTail": "Tail",
+    "formula": "Formula"
   }
 }

@@ -140,7 +140,11 @@ cp backend/.env.example backend/.env
 | `STORAGE_PRIVATE_KEY` | 0G Storage 写入钱包私钥 | 用到存储时必填 |
 | `OG_KV_STREAM_ID` | 0G KV Storage Stream ID | 用到 KV 时必填 |
 | `OG_KV_NODE_RPC` | 0G KV 节点地址 | 用到 KV 时必填 |
-| `COMPUTE_PRIVATE_KEY` | 0G Compute Network 钱包私钥 | 用到 AI 时必填 |
+| `OG_COMPUTE_API_KEY` | 0G Compute Network API Key（`app-sk-...`） | 用到 AI 时必填 |
+| `OG_COMPUTE_BASE_URL` | 0G Compute Network base URL | 已有默认值 |
+| `OG_COMPUTE_MODEL` | 使用的模型名称 | 已有默认值 |
+| `AI_PROMPT_PATH` | AI 提示词文件路径（默认读取根目录 `prompt.MD`） | 可选 |
+| `COMPUTE_PRIVATE_KEY` | 0G Compute Network 钱包私钥（未来 Broker 模式使用） | 可选 |
 | `ORACLE_PRIVATE_KEY` | Oracle 结算钱包私钥 | 用到 Oracle 时必填 |
 | `DEMO_USDC_ADDRESS` | DemoUSDC 合约地址 | 合约部署后填入 |
 | `TRADING_HUB_ADDRESS` | TradingHub 合约地址 | 合约部署后填入 |
