@@ -3,8 +3,34 @@
 @tailwind utilities;
 
 @layer base {
+  /* Light theme CSS variables (default) */
+  :root {
+    --color-bg-base: 255 255 255;
+    --color-bg-surface: 249 250 251;
+    --color-bg-elevated: 243 244 246;
+    --color-border: 229 231 235;
+    --color-border-strong: 209 213 219;
+    --color-text-primary: 17 24 39;
+    --color-text-secondary: 75 85 99;
+    --color-text-muted: 156 163 175;
+  }
+
+  /* Dark theme CSS variables */
+  .dark {
+    --color-bg-base: 2 6 23;
+    --color-bg-surface: 15 23 42;
+    --color-bg-elevated: 30 41 59;
+    --color-border: 51 65 85;
+    --color-border-strong: 71 85 105;
+    --color-text-primary: 248 250 252;
+    --color-text-secondary: 226 232 240;
+    --color-text-muted: 148 163 184;
+  }
+
   body {
     @apply antialiased;
+    background-color: rgb(var(--color-bg-base));
+    color: rgb(var(--color-text-primary));
   }
 
   /* 自定义滚动条 */
@@ -14,14 +40,15 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-dark-900;
+    background-color: rgb(var(--color-bg-surface));
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-dark-600 rounded-full;
+    background-color: rgb(var(--color-border-strong));
+    @apply rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-dark-500;
+    background-color: rgb(var(--color-text-muted));
   }
 }
