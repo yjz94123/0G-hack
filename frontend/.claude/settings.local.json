@@ -4,7 +4,8 @@
       "Bash(yarn)",
       "Bash(yarn --version:*)",
       "Bash(yarn install)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

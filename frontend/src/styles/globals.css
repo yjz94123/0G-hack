@@ -5,6 +5,7 @@
 @layer base {
   /* Light theme CSS variables (default) */
   :root {
+    color-scheme: light;
     --color-bg-base: 255 255 255;
     --color-bg-surface: 249 250 251;
     --color-bg-elevated: 243 244 246;
@@ -17,6 +18,7 @@
 
   /* Dark theme CSS variables */
   .dark {
+    color-scheme: dark;
     --color-bg-base: 2 6 23;
     --color-bg-surface: 15 23 42;
     --color-bg-elevated: 30 41 59;

@@ -17,8 +17,8 @@ export function HomePage() {
     <div>
       {/* Hero */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Prediction Markets</h1>
-        <p className="text-dark-400 mt-1">
+        <h1 className="text-2xl font-bold text-fg-primary">Prediction Markets</h1>
+        <p className="text-fg-secondary mt-1">
           Aggregated from Polymarket. Powered by 0G Network.
         </p>
       </div>
@@ -32,7 +32,7 @@ export function HomePage() {
             className={`px-4 py-1.5 text-sm rounded-full whitespace-nowrap transition ${
               selectedTag === tag
                 ? 'bg-primary-600 text-white'
-                : 'bg-dark-800 text-dark-400 hover:text-white'
+                : 'bg-elevated text-fg-secondary hover:text-fg-primary'
             }`}
           >
             {tag}

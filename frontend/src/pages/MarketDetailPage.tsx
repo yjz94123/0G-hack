@@ -50,30 +50,30 @@ export function MarketDetailPage() {
   return (
     <div className="max-w-7xl mx-auto pb-12">
       {/* Breadcrumb & Navigation */}
-      <div className="flex items-center gap-2 mb-6 text-sm text-dark-400">
-        <Link to="/" className="hover:text-white flex items-center gap-1">
+      <div className="flex items-center gap-2 mb-6 text-sm text-fg-secondary">
+        <Link to="/" className="hover:text-fg-primary flex items-center gap-1">
           <ChevronLeft className="w-4 h-4" />
           Markets
         </Link>
         <span>/</span>
-        <span className="text-white truncate max-w-[200px]">{event.title}</span>
+        <span className="text-fg-primary truncate max-w-[200px]">{event.title}</span>
       </div>
 
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 border-b border-dark-800 pb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 border-b border-border pb-8">
         <div className="flex-1">
           <div className="flex items-start gap-4">
              {event.imageUrl && (
                 <img 
                   src={event.imageUrl} 
                   alt={event.title} 
-                  className="w-16 h-16 rounded-lg object-cover bg-dark-800"
+                  className="w-16 h-16 rounded-lg object-cover bg-elevated"
                 />
              )}
              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white mb-3">{event.title}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-fg-primary mb-3">{event.title}</h1>
                  <div className="flex flex-wrap items-center gap-6 text-sm">
-                    <div className="flex items-center gap-2 text-dark-300">
+                    <div className="flex items-center gap-2 text-fg-secondary">
                        <Clock className="w-4 h-4" />
                        <span>{t('marketDetail.expires')} {new Date(event.endDate).toLocaleDateString()}</span>
                     </div>
@@ -84,7 +84,7 @@ export function MarketDetailPage() {
         
         <div className="flex gap-4">
            {/* Rules Button */}
-           <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-800 text-white hover:bg-dark-700 transition border border-dark-700">
+           <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-elevated text-fg-primary hover:bg-elevated/80 transition border border-border-strong">
               <Info className="w-4 h-4" />
               <span>{t('marketDetail.rules')}</span>
            </button>
@@ -93,13 +93,13 @@ export function MarketDetailPage() {
       
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-         <div className="bg-dark-900/50 rounded-lg p-3 border border-dark-800">
-            <div className="text-xs text-dark-500 mb-1">{t('marketDetail.volume')}</div>
-            <div className="text-lg font-medium text-white">{formatMoney(volume)}</div>
+         <div className="bg-surface/60 rounded-lg p-3 border border-border">
+            <div className="text-xs text-fg-muted mb-1">{t('marketDetail.volume')}</div>
+            <div className="text-lg font-medium text-fg-primary">{formatMoney(volume)}</div>
          </div>
-         <div className="bg-dark-900/50 rounded-lg p-3 border border-dark-800">
-            <div className="text-xs text-dark-500 mb-1">{t('marketDetail.liquidity')}</div>
-            <div className="text-lg font-medium text-white">{formatMoney(liquidity)}</div>
+         <div className="bg-surface/60 rounded-lg p-3 border border-border">
+            <div className="text-xs text-fg-muted mb-1">{t('marketDetail.liquidity')}</div>
+            <div className="text-lg font-medium text-fg-primary">{formatMoney(liquidity)}</div>
          </div>
       </div>
 
@@ -108,17 +108,17 @@ export function MarketDetailPage() {
         {/* Left Column (Chart, OrderBook) - 8 cols */}
         <div className="lg:col-span-8 space-y-6">
           {/* Markets selector */}
-          <div className="bg-dark-900 rounded-xl border border-dark-800 p-4">
+          <div className="bg-surface rounded-xl border border-border p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-white">
+              <h3 className="text-sm font-medium text-fg-primary">
                 {t('marketDetail.markets')}
-                <span className="ml-2 text-xs text-dark-500 font-normal">
+                <span className="ml-2 text-xs text-fg-muted font-normal">
                   ({event.markets?.length || 0})
                 </span>
               </h3>
-              <div className="text-xs text-dark-500">
+              <div className="text-xs text-fg-muted">
                 {market ? (
-                  <span className="text-dark-300">{t('marketDetail.selected')}</span>
+                  <span className="text-fg-secondary">{t('marketDetail.selected')}</span>
                 ) : (
                   <span>{t('marketDetail.selectMarket')}</span>
                 )}
@@ -137,16 +137,16 @@ export function MarketDetailPage() {
                     onClick={() => setSelectedMarketId(m.marketId)}
                     className={`w-full text-left rounded-lg border px-3 py-2 transition ${
                       selected
-                        ? 'bg-dark-800 border-primary-600/60'
-                        : 'bg-dark-900 border-dark-800 hover:bg-dark-800/40 hover:border-dark-700'
+                        ? 'bg-elevated border-primary-600/60'
+                        : 'bg-surface border-border hover:bg-elevated/40 hover:border-border-strong'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="text-sm text-white leading-snug max-h-[2.6em] overflow-hidden">
+                        <div className="text-sm text-fg-primary leading-snug max-h-[2.6em] overflow-hidden">
                           {m.question}
                         </div>
-                        <div className="mt-1 text-xs text-dark-500">
+                        <div className="mt-1 text-xs text-fg-muted">
                           {t('marketDetail.volume')}: {formatMoney(Number(m.volume || 0))}
                         </div>
                       </div>
@@ -165,12 +165,12 @@ export function MarketDetailPage() {
             </div>
           </div>
 
-          <div className="bg-dark-900 rounded-xl border border-dark-800 p-1 min-h-[400px]">
+          <div className="bg-surface rounded-xl border border-border p-1 min-h-[400px]">
              {/* Chart Header */}
-             <div className="flex items-center justify-between p-4 border-b border-dark-800/50">
+             <div className="flex items-center justify-between p-4 border-b border-border/50">
                 <div className="flex items-center gap-2">
-                   <BarChart2 className="w-4 h-4 text-dark-400" />
-                   <span className="text-sm font-medium text-white">{t('marketDetail.priceHistory')}</span>
+                   <BarChart2 className="w-4 h-4 text-fg-secondary" />
+                   <span className="text-sm font-medium text-fg-primary">{t('marketDetail.priceHistory')}</span>
                 </div>
              </div>
              
@@ -178,22 +178,22 @@ export function MarketDetailPage() {
                 {market ? (
                   <PriceChart data={priceData?.data} isLoading={priceLoading} />
                 ) : (
-                  <div className="h-48 flex items-center justify-center text-dark-600 text-sm">
+                  <div className="h-48 flex items-center justify-center text-fg-muted text-sm">
                     {t('marketDetail.selectMarketToView')}
                   </div>
                 )}
              </div>
           </div>
           
-           <div className="bg-dark-900 rounded-xl border border-dark-800 p-1">
-               <div className="p-4 border-b border-dark-800/50">
-                  <h3 className="text-sm font-medium text-white">{t('marketDetail.orderBook')}</h3>
+           <div className="bg-surface rounded-xl border border-border p-1">
+               <div className="p-4 border-b border-border/50">
+                  <h3 className="text-sm font-medium text-fg-primary">{t('marketDetail.orderBook')}</h3>
                </div>
                <div className="p-4">
                  {market ? (
                    <OrderBook data={orderBookData?.data} isLoading={obLoading} />
                  ) : (
-                   <div className="py-10 text-center text-sm text-dark-600">
+                   <div className="py-10 text-center text-sm text-fg-muted">
                      {t('marketDetail.selectMarketToView')}
                    </div>
                  )}
@@ -211,7 +211,7 @@ export function MarketDetailPage() {
                 noPrice={parseFloat(market.outcomePrices?.[1] || '0')}
               />
             ) : (
-              <div className="bg-dark-900 rounded-xl border border-dark-800 p-8 text-center text-dark-500">
+              <div className="bg-surface rounded-xl border border-border p-8 text-center text-fg-muted">
                 {t('marketDetail.selectMarket')}
               </div>
             )}
@@ -219,7 +219,7 @@ export function MarketDetailPage() {
             {market ? (
               <AnalysisPanel eventId={event.eventId} marketId={market.marketId} />
             ) : (
-              <div className="bg-dark-900 rounded-xl border border-dark-800 p-6 text-center text-dark-600 text-sm">
+              <div className="bg-surface rounded-xl border border-border p-6 text-center text-fg-muted text-sm">
                 {t('marketDetail.selectMarketToAnalyze')}
               </div>
             )}

@@ -21,8 +21,8 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
   };
 
   return (
-    <div className="bg-dark-900 rounded-xl border border-dark-800 p-4">
-      <h3 className="text-sm font-medium text-dark-300 mb-3">Trade</h3>
+    <div className="bg-surface rounded-xl border border-border p-4">
+      <h3 className="text-sm font-medium text-fg-primary mb-3">Trade</h3>
 
       {/* Side selector */}
       <div className="grid grid-cols-2 gap-2 mb-4">
@@ -31,7 +31,7 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
           className={`py-2 rounded-lg text-sm font-medium transition ${
             side === 'yes'
               ? 'bg-green-600 text-white'
-              : 'bg-dark-800 text-dark-400 hover:text-white'
+              : 'bg-elevated text-fg-secondary hover:text-fg-primary'
           }`}
         >
           Yes {(yesPrice * 100).toFixed(0)}c
@@ -41,7 +41,7 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
           className={`py-2 rounded-lg text-sm font-medium transition ${
             side === 'no'
               ? 'bg-red-600 text-white'
-              : 'bg-dark-800 text-dark-400 hover:text-white'
+              : 'bg-elevated text-fg-secondary hover:text-fg-primary'
           }`}
         >
           No {(noPrice * 100).toFixed(0)}c
@@ -50,19 +50,19 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
 
       {/* Amount input */}
       <div className="mb-3">
-        <label className="text-xs text-dark-500 mb-1 block">Amount (USDC)</label>
+        <label className="text-xs text-fg-muted mb-1 block">Amount (USDC)</label>
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0.00"
-          className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+          className="w-full bg-elevated border border-border-strong rounded-lg px-3 py-2 text-fg-primary text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
 
       {/* Estimated shares */}
       {shares > 0 && (
-        <div className="mb-4 text-xs text-dark-400">
+        <div className="mb-4 text-xs text-fg-secondary">
           Est. shares: {shares.toFixed(2)} @ {(currentPrice * 100).toFixed(0)}c
         </div>
       )}
@@ -77,7 +77,7 @@ export function TradePanel({ marketId: _marketId, yesPrice, noPrice }: TradePane
           Buy {side === 'yes' ? 'Yes' : 'No'}
         </button>
       ) : (
-        <p className="text-center text-sm text-dark-500">Connect wallet to trade</p>
+        <p className="text-center text-sm text-fg-muted">Connect wallet to trade</p>
       )}
     </div>
   );
