@@ -7,7 +7,7 @@ export function ConnectButton() {
     return (
       <button
         onClick={disconnect}
-        className="px-4 py-2 text-sm rounded-lg border border-dark-600 text-dark-300 hover:text-white hover:border-dark-400 transition"
+        className="px-4 py-2 text-sm rounded-lg border border-border-strong text-fg-secondary hover:text-fg-primary hover:border-border transition"
       >
         Disconnect
       </button>

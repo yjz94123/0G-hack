@@ -13,9 +13,9 @@ export function AnalysisPanel({ eventId, marketId }: AnalysisPanelProps) {
   const analyses = analysesData?.data || [];
 
   return (
-    <div className="bg-dark-900 rounded-xl border border-dark-800 p-4">
+    <div className="bg-surface rounded-xl border border-border p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-dark-300">AI Analysis</h3>
+        <h3 className="text-sm font-medium text-fg-primary">AI Analysis</h3>
         <button
           onClick={() => triggerMutation.mutate({ eventId, marketId })}
           disabled={triggerMutation.isPending}
@@ -26,12 +26,12 @@ export function AnalysisPanel({ eventId, marketId }: AnalysisPanelProps) {
       </div>
 
       {/* Powered by 0G */}
-      <p className="text-xs text-dark-600 mb-3">Powered by 0G Compute Network</p>
+      <p className="text-xs text-fg-muted mb-3">Powered by 0G Compute Network</p>
 
       {isLoading ? (
         <Loading size="sm" />
       ) : analyses.length === 0 ? (
-        <p className="text-sm text-dark-500 text-center py-4">
+        <p className="text-sm text-fg-muted text-center py-4">
           No analysis yet. Click "New Analysis" to get AI insights.
         </p>
       ) : (
@@ -39,7 +39,7 @@ export function AnalysisPanel({ eventId, marketId }: AnalysisPanelProps) {
           {analyses.map((analysis) => (
             <div
               key={analysis.taskId}
-              className="p-3 rounded-lg bg-dark-800 border border-dark-700"
+              className="p-3 rounded-lg bg-elevated border border-border-strong"
             >
               <div className="flex items-center justify-between text-xs mb-2">
                 <span
@@ -53,10 +53,10 @@ export function AnalysisPanel({ eventId, marketId }: AnalysisPanelProps) {
                 >
                   {analysis.status}
                 </span>
-                <span className="text-dark-500">{analysis.createdAt}</span>
+                <span className="text-fg-muted">{analysis.createdAt}</span>
               </div>
               {analysis.reasoning && (
-                <div className="text-sm text-dark-300">
+                <div className="text-sm text-fg-secondary">
                   <p>{analysis.reasoning}</p>
                 </div>
               )}

@@ -3,7 +3,7 @@ import { http } from 'wagmi';
 import { defineChain } from 'viem';
 
 export const zeroGTestnet = defineChain({
-  id: 16600, // Replace with actual 0G testnet Chain ID if different. 16600 is often cited for 0G Newton.
+  id: 16602, // 0G Newton Testnet Chain ID
   name: '0G Newton Testnet',
   network: '0g-newton',
   nativeCurrency: {
@@ -12,8 +12,8 @@ export const zeroGTestnet = defineChain({
     symbol: 'A0GI',
   },
   rpcUrls: {
-    default: { http: ['https://rpc-testnet.0g.ai'] }, // Replace with actual RPC
-    public: { http: ['https://rpc-testnet.0g.ai'] },
+    default: { http: ['https://rpc.ankr.com/0g_galileo_testnet_evm'] },
+    public: { http: ['https://rpc.ankr.com/0g_galileo_testnet_evm'] },
   },
   blockExplorers: {
     default: { name: '0G Explorer', url: 'https://scan-testnet.0g.ai' },

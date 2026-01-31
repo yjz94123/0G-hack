@@ -13,7 +13,7 @@ export function EventList({ events, isLoading, error, onRetry }: EventListProps)
   if (isLoading) return <Loading text="Loading markets..." />;
   if (error) return <ErrorMessage message={error.message} onRetry={onRetry} />;
   if (events.length === 0) {
-    return <p className="text-center text-dark-500 py-8">No markets found</p>;
+    return <p className="text-center text-fg-muted py-8">No markets found</p>;
   }
 
   return (

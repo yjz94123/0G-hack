@@ -8,53 +8,43 @@ interface ThemeState {
   toggleTheme: () => void;
 }
 
-// Helper to get initial theme
+const THEME_STORAGE_KEY = 'og-predict-theme';
+
 const getInitialTheme = (): Theme => {
-  // Check localStorage first
-  const stored = localStorage.getItem('og-predict-theme');
+  if (typeof window === 'undefined') return 'dark';
+
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
   if (stored === 'light' || stored === 'dark') {
     return stored;
   }
 
-  // Check system preference
-  if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-    return 'light';
+  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
   }
 
-  // Default to dark (current default)
-  return 'dark';
+  return 'light';
 };
 
-// Helper to apply theme to DOM
 const applyTheme = (theme: Theme) => {
   const root = document.documentElement;
-
-  if (theme === 'dark') {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
-
-  localStorage.setItem('og-predict-theme', theme);
+  root.classList.toggle('dark', theme === 'dark');
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
 };
 
 export const useThemeStore = create<ThemeState>((set, get) => {
-  // Initialize theme on store creation
   const initialTheme = getInitialTheme();
   applyTheme(initialTheme);
 
   return {
     theme: initialTheme,
-
     setTheme: (theme) => {
       applyTheme(theme);
       set({ theme });
     },
-
     toggleTheme: () => {
-      const newTheme = get().theme === 'dark' ? 'light' : 'dark';
-      applyTheme(newTheme);
-      set({ theme: newTheme });
+      const next = get().theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      set({ theme: next });
     },
   };
 });

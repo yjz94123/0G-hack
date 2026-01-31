@@ -19,7 +19,7 @@ export function PositionList({ positions, isLoading }: PositionListProps) {
 
   if (positions.length === 0) {
     return (
-      <div className="text-center text-dark-500 py-8">
+      <div className="text-center text-fg-muted py-8">
         No open positions
       </div>
     );
@@ -34,11 +34,11 @@ export function PositionList({ positions, isLoading }: PositionListProps) {
         return (
           <div
             key={`${pos.marketId}-${pos.outcome}`}
-            className="p-4 rounded-xl bg-dark-900 border border-dark-800"
+            className="p-4 rounded-xl bg-surface border border-border"
           >
-            <h4 className="text-sm text-white font-medium truncate">{pos.question}</h4>
+            <h4 className="text-sm text-fg-primary font-medium truncate">{pos.question}</h4>
             <div className="mt-2 flex items-center justify-between text-sm">
-              <div className="text-dark-400">
+              <div className="text-fg-secondary">
                 {pos.shares.toFixed(2)} shares @ {(pos.avgPrice * 100).toFixed(0)}c
               </div>
               <div className={pnl >= 0 ? 'text-green-400' : 'text-red-400'}>
