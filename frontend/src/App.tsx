@@ -1,17 +1,24 @@
-import { Routes, Route } from 'react-router-dom';
-import { MainLayout } from './components/layout/MainLayout';
-import { HomePage } from './pages/HomePage';
-import { MarketDetailPage } from './pages/MarketDetailPage';
-import { PortfolioPage } from './pages/PortfolioPage';
+import '@rainbow-me/rainbowkit/styles.css';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter } from 'react-router-dom';
+import { config } from './config/wagmi';
+import { AppRouter } from './router';
+import './i18n';
 
-export function App() {
+const queryClient = new QueryClient();
+
+export const App = () => {
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/market/:marketId" element={<MarketDetailPage />} />
-        <Route path="/portfolio" element={<PortfolioPage />} />
-      </Route>
-    </Routes>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <BrowserRouter>
+            <AppRouter />
+          </BrowserRouter>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
-}
+};

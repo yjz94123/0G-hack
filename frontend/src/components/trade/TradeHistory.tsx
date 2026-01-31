@@ -32,11 +32,11 @@ export function TradeHistory({ trades, isLoading }: TradeHistoryProps) {
         </thead>
         <tbody>
           {trades.map((trade) => (
-            <tr key={trade.orderId} className="border-b border-dark-800/50">
+            <tr key={trade.tradeId} className="border-b border-dark-800/50">
               <td className="py-2 text-dark-300 max-w-[150px] truncate">{trade.marketId}</td>
               <td className="py-2">
-                <span className={trade.side === 'buy' ? 'text-green-400' : 'text-red-400'}>
-                  {trade.side.toUpperCase()}
+                <span className={trade.tradeType === 'buy' ? 'text-green-400' : 'text-red-400'}>
+                  {trade.tradeType.toUpperCase()}
                 </span>
               </td>
               <td className="py-2 text-dark-300">{trade.outcome}</td>
@@ -45,9 +45,9 @@ export function TradeHistory({ trades, isLoading }: TradeHistoryProps) {
               <td className="py-2 text-right">
                 <span
                   className={`px-2 py-0.5 text-xs rounded-full ${
-                    trade.status === 'confirmed'
+                    trade.status === 'filled'
                       ? 'bg-green-500/10 text-green-400'
-                      : trade.status === 'failed'
+                      : trade.status === 'cancelled'
                         ? 'bg-red-500/10 text-red-400'
                         : 'bg-yellow-500/10 text-yellow-400'
                   }`}

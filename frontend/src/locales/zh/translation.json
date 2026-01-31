@@ -1,0 +1,42 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "search": "搜索市场",
+    "connectWallet": "连接钱包",
+    "poweredBy": "Powered by 0G Newton Testnet"
+  },
+  "nav": {
+    "explorer": "浏览",
+    "smartMoney": "聪敏钱",
+    "reefboard": "排行榜",
+    "referral": "邀请",
+    "portfolio": "资产组合",
+    "docs": "文档",
+    "twitter": "推特",
+    "support": "支持",
+    "soon": "即将推出",
+    "testnetLive": "测试网运行中"
+  },
+  "marketList": {
+    "trending": "热门",
+    "newEvents": "新发布",
+    "endingSoon": "即将结束",
+    "expiresSoon": "即将过期",
+    "vol24h": "24h成交",
+    "totalVol": "总成交",
+    "liquidity": "流动性",
+    "event": "事件",
+    "noMarkets": "暂无市场",
+    "noMarketsDesc": "请尝试调整过滤器或搜索条件"
+  },
+  "marketDetail": {
+    "expires": "到期",
+    "rules": "规则",
+    "volume": "成交量",
+    "liquidity": "流动性",
+    "priceHistory": "价格走势",
+    "orderBook": "订单簿",
+    "marketUnavailable": "市场数据暂不可用"
+  }
+}

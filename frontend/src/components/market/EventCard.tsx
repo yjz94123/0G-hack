@@ -8,13 +8,13 @@ interface EventCardProps {
 export function EventCard({ event }: EventCardProps) {
   return (
     <Link
-      to={`/market/${event.id}`}
+      to={`/market/${event.eventId}`}
       className="block p-4 rounded-xl bg-dark-900 border border-dark-800 hover:border-dark-600 transition"
     >
       <div className="flex items-start gap-3">
-        {event.image && (
+        {event.imageUrl && (
           <img
-            src={event.image}
+            src={event.imageUrl}
             alt={event.title}
             className="w-12 h-12 rounded-lg object-cover"
           />
@@ -28,7 +28,7 @@ export function EventCard({ event }: EventCardProps) {
           {event.markets && event.markets.length > 0 && (
             <div className="mt-2 text-sm">
               <span className="text-green-400 font-medium">
-                {(event.markets[0].yesPrice * 100).toFixed(0)}%
+                {(parseFloat(event.markets[0].bestBid) * 100).toFixed(0)}%
               </span>
               <span className="text-dark-500 ml-1">Yes</span>
             </div>
