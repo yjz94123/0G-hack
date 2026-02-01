@@ -5,8 +5,8 @@ import { dataSyncer, orderBookCache } from './services/sync';
 
 async function main() {
   // Start Express server
-  app.listen(config.port, () => {
-    logger.info(`Server running on http://localhost:${config.port}`);
+  app.listen(config.port, config.host, () => {
+    logger.info(`Server running on http://${config.host}:${config.port}`);
     logger.info(`Environment: ${config.nodeEnv}`);
   });
 

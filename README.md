@@ -1,3 +1,8 @@
+---
+sdk: docker
+app_port: 7860
+---
+
 # OG Predict - 预测市场聚合交易终端
 
 基于 **0G Network** 构建的预测市场聚合交易终端 Demo。从 Polymarket 聚合预测事件与订单簿数据，利用 0G Compute Network 进行 AI 分析，通过 0G Storage 实现去中心化数据持久化，用户可在 0G 测试网上完成交易。

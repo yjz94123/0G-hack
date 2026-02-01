@@ -15,6 +15,10 @@ app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
 
+app.get('/', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Routes
 app.use('/api/v1/markets', marketsRouter);
 app.use('/api/v1/analysis', analysisRouter);
