@@ -134,7 +134,7 @@ marketsRouter.get('/', validate(listMarketsQuerySchema, 'query'), async (req, re
       },
     });
 
-    const data: EventSummary[] = events.map((e) => ({
+    const data: EventSummary[] = events.map((e: any) => ({
       eventId: e.id,
       slug: e.slug,
       title: e.title,
@@ -151,7 +151,7 @@ marketsRouter.get('/', validate(listMarketsQuerySchema, 'query'), async (req, re
       liquidity: e.liquidity,
       openInterest: e.openInterest,
       tags: Array.isArray(e.tags) ? (e.tags as any) : [],
-      markets: e.markets.map((m) => ({
+      markets: e.markets.map((m: any) => ({
         marketId: m.id,
         conditionId: m.conditionId ?? '',
         question: m.question,
@@ -197,7 +197,7 @@ marketsRouter.get('/:eventId', async (req, res, next) => {
       timestamp: new Date().toISOString(),
     };
 
-    const markets = event.markets.map((m) => ({
+    const markets = event.markets.map((m: any) => ({
       marketId: m.id,
       conditionId: m.conditionId ?? '',
       question: m.question,
@@ -451,7 +451,7 @@ marketsRouter.get('/:eventId/analyses', validate(listAnalysesQuerySchema, 'query
     });
     if (!event) throw new AppError(404, 'EVENT_NOT_FOUND', `Event '${eventId}' not found`);
 
-    const marketIds = new Set(event.markets.map((m) => m.id));
+    const marketIds = new Set(event.markets.map((m: any) => m.id));
     if (query.marketId && !marketIds.has(query.marketId)) {
       throw new AppError(404, 'MARKET_NOT_FOUND', `Market '${query.marketId}' not found in event '${eventId}'`);
     }
@@ -467,7 +467,7 @@ marketsRouter.get('/:eventId/analyses', validate(listAnalysesQuerySchema, 'query
       skip: query.offset,
     });
 
-    const tasks: AnalysisTask[] = rows.map((t) => {
+    const tasks: AnalysisTask[] = rows.map((t: any) => {
       const result = t.result ?? undefined;
       const resultObj = (t.result ?? {}) as any;
       return {

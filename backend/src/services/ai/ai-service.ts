@@ -76,7 +76,7 @@ export class AiService {
         where: { taskId },
         data: {
           status: 'completed',
-          result: result as Prisma.InputJsonValue,
+          result: result as any,
           ogStorageKey,
           completedAt: new Date(),
         },
@@ -134,7 +134,7 @@ export class AiService {
       take: 50,
     });
 
-    return tasks.map((t) => {
+    return tasks.map((t: any) => {
       const result = t.result ?? undefined;
       const resultObj = (t.result ?? {}) as any;
       return {
