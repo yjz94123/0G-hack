@@ -39,7 +39,10 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/backend/dist ./backend/dist
 COPY --from=build /app/backend/prisma ./backend/prisma
 COPY --from=build /app/backend/package.json ./backend/package.json
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+
+RUN chmod +x ./docker-entrypoint.sh
 
 EXPOSE 7860
 
-CMD ["node", "backend/dist/index.js"]
+CMD ["./docker-entrypoint.sh"]
