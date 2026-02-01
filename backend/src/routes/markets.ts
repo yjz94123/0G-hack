@@ -329,7 +329,7 @@ marketsRouter.post('/:eventId/analyze', validate(analyzeBodySchema, 'body'), asy
     const marketId = body.marketId ?? event.markets[0]?.id;
     if (!marketId) throw new AppError(404, 'MARKET_NOT_FOUND', `No market found in event '${eventId}'`);
 
-    const market = event.markets.find((m) => m.id === marketId);
+    const market = event.markets.find((m: any) => m.id === marketId);
     if (!market) throw new AppError(404, 'MARKET_NOT_FOUND', `Market '${marketId}' not found in event '${eventId}'`);
 
     const task = await aiService.createAnalysis({
@@ -373,7 +373,7 @@ marketsRouter.post('/:eventId/analyze/stream', validate(analyzeBodySchema, 'body
     const marketId = body.marketId ?? event.markets[0]?.id;
     if (!marketId) throw new AppError(404, 'MARKET_NOT_FOUND', `No market found in event '${eventId}'`);
 
-    const market = event.markets.find((m) => m.id === marketId);
+    const market = event.markets.find((m: any) => m.id === marketId);
     if (!market) throw new AppError(404, 'MARKET_NOT_FOUND', `Market '${marketId}' not found in event '${eventId}'`);
 
     await prisma.analysisTask.create({
