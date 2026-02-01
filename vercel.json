@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm install && npm run build --workspace=packages/shared && npm run build --workspace=frontend",
+  "buildCommand": "cd packages/shared && npm install && npm run build && cd ../../frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "npm install",
+  "installCommand": "echo 'Using buildCommand for installation'",
   "rewrites": [
     {
       "source": "/(.*)",
